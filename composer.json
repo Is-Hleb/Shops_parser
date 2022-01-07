@@ -1,0 +1,12 @@
+{
+    "name": "admin/parser",
+    "authors": [
+        {
+            "name": "Is-Hleb",
+            "email": "59208933+Is-Hleb@users.noreply.github.com"
+        }
+    ],
+    "require": {
+        "paquettg/php-html-parser": "^3.1"
+    }
+}

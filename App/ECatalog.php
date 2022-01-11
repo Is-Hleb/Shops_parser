@@ -46,7 +46,7 @@ class ECatalog extends ShopsParserController {
         // Получаем количество все страниц
         $pagesCount = intval($pagesCount);
         //ссылки на страницы. ссылки на продукты каждой страницы
-        $limit = 10;
+        $limit = 4;
         // for по всем страницам
         for($curPage = 1; $curPage < $pagesCount; $curPage++) {
             if($limit-- <= 0) break;
@@ -63,22 +63,25 @@ class ECatalog extends ShopsParserController {
 
                 $span = $link->find('.u')[0];
                 $productName = $span->text;
-
-//                echo $productName . '<br>';
                 $productLink = "https://www.e-katalog.ru/ek-item.php?resolved_name_={$name}&view_=tbl";
-//                echo $productLink . '<br>';
+
                 $category = $output[$categoryURL]['category'];
                 $product[] = [
                     'name' => $productName,
                     'link' => $productLink,
-                    'category' => $category,
                 ];
-                $this->cacheSet('products', $product);
+                $categoryName[] = [
+                    'category: ' . $category => [
+                        $product,
+                    ]
+                ];
+                $this->cacheSet('c', $categoryName);
             }
         }
-
     }
 }
+
+
 
 
 

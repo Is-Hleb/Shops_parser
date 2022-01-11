@@ -75,7 +75,7 @@ class ECatalog extends ShopsParserController {
                         $product,
                     ]
                 ];
-                $this->cacheSet('c', $categoryName);
+                $this->cacheSet('categoryName', $categoryName);
             }
         }
     }

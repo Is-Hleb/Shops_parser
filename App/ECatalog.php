@@ -66,11 +66,8 @@ class ECatalog extends ShopsParserController {
                 $productLink = "https://www.e-katalog.ru/ek-item.php?resolved_name_={$name}&view_=tbl";
 
                 $category = $output[$categoryURL]['category'];
-                $product[] = [
-                    'name' => $productName,
-                    'link' => $productLink,
-                ];
-                $products[$category][] = [ 'name' => $productName, 'link' => $productLink, ];
+
+                $products[$category]['product'] = [ 'name' => $productName, 'link' => $productLink, ];
                 $this->cacheSet('products', $products);
             }
         }

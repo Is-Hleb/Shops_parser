@@ -70,12 +70,8 @@ class ECatalog extends ShopsParserController {
                     'name' => $productName,
                     'link' => $productLink,
                 ];
-                $categoryName[] = [
-                    'category: ' . $category => [
-                        $product,
-                    ]
-                ];
-                $this->cacheSet('categoryName', $categoryName);
+                $products[$category][] = [ 'name' => $productName, 'link' => $productLink, ];
+                $this->cacheSet('products', $products);
             }
         }
     }

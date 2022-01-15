@@ -15,6 +15,12 @@ abstract class ShopsParserController
     private mixed $content;
 
     public function __construct() {
+        $connected = file_get_contents("http://bgaek.by/");
+        if(!$connected) {
+            exit(json_encode([
+                'error' => 'connection error'
+            ]));
+        }
         $this->dom = new Dom;
         $array = explode('\\', static::class);
         $this->shopName = end($array);
@@ -44,6 +50,10 @@ abstract class ShopsParserController
         $this->content[$key] = $value;
     }
 
+    public function cacheAdd(string $keyL1, array $value) {
+        $this->content[$keyL1] = array_merge($value, $this->content[$keyL1]);
+    }
+
     public function cacheGet($key) {
         return $this->content[$key] ?? false;
     }
@@ -57,6 +67,10 @@ abstract class ShopsParserController
     }
 
     public function __destruct() {
+        $this->cacheUpdate();
+    }
+
+    public function cacheUpdate() : void {
         if(!CACHE_ON) {
             return;
         }

@@ -2,6 +2,7 @@
 session_start();
 ini_set("max_execution_time", 60 * 60 * 24 * 365);
 const CACHE_ON = true;
+const INDEX_FILE_PATH = __DIR__;
 define("CURRENT_ROUTE", $_GET['route'] ?? '/');
 define("EXPLODED_ROUTES", explode('/', CURRENT_ROUTE));
 
@@ -19,14 +20,24 @@ const routes = [
 $class = routes[CURRENT_ROUTE][0];
 $method = routes[CURRENT_ROUTE][1];
 
+use App\TasksQueue\TasksQueue;
 
-exec("php Runner.php $class $method", $output);
-$ans = json_decode($output[0], true);
-var_dump($ans);
-$start = 0;
-while(isset($ans['error'])) {
-    sleep(2);
-    exec("php Runner.php $class $method", $output);
-    $ans = json_decode($output[0], true);
-    var_dump($ans['error'], $start++);
+$taskQueue = new TasksQueue();
+$lastJob = $taskQueue->getLastJob();
+d($lastJob );
+if(!$taskQueue->isset('ECatalog')) {
+    $taskQueue->insert('ECatalog', $class, $method);
+    $taskQueue->run();
 }
+$active = $taskQueue->getActiveJob();
+if($lastJob['status'] == TasksQueue::FAILED) {
+    $taskQueue->insert('ECatalog', $class, $method);
+    $taskQueue->run();
+}
+d($active);
+
+// $process = new PhpProcess(file_get_contents( "Runner.php"));
+// $process->setOptions(['create_new_console' => true]);
+// $process->start();
+// $process->run();
+// $process->start();

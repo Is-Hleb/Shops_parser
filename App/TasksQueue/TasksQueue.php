@@ -56,7 +56,6 @@ class TasksQueue
 
 
     public function insert($name, $class, $method) {
-        //$command = "php Runner.php " . str_replace('\\', '-', $class) . " $method $name > /dev/null 2>/dev/null &";
         $logPath = LOGS_FILES_PATH . "/jobs/$name.log";
         if(!file_exists($logPath)) {
             fopen($logPath, "w");

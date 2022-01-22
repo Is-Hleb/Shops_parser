@@ -30,9 +30,3 @@ if(!is_dir('logs')) {
 var_dump(PHP_OS);
 
 (new $class)->$method(...$args);
-
-// $process = new PhpProcess(file_get_contents( "Runner.php"));
-// $process->setOptions(['create_new_console' => true]);
-// $process->start();
-// $process->run();
-// $process->start();

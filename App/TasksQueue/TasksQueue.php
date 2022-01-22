@@ -60,11 +60,12 @@ class TasksQueue
         if(!file_exists($logPath)) {
             fopen($logPath, "w");
         }
-        $command = "php Runner.php " . str_replace('\\', '-', $class) . " $method $name > logs/jobs/$name.log &";
+
         $job = [
             'name' => $name,
             'status' => self::WAITING,
-            'command' => $command
+            'class' => $class,
+            'method' => $method
         ];
 
         $this->queue[] = $job;
@@ -73,8 +74,21 @@ class TasksQueue
 
     public function run() {
         $job = &$this->queue[0];
+        $command = "php Runner.php " . str_replace('\\', '-', $job['class']) . " {$job['method']} {$job['name']} > logs/jobs/{$job['name']}.log &";
+
+        if(PHP_OS == 'WINNT') {
+            $command = "START /B $command";
+            $command = str_replace('&', '', $command);
+        }
+        echo $command;
+        // return;
         if (!$this->running) {
-            exec($job['command'], $output);
+            if(PHP_OS == 'WINNT') {
+                pclose(popen($command, 'r'));
+                $output = [];
+            } else {
+                exec($command, $output);
+            }
             $job['status'] = self::RUNNING;
             $job['output'] = $output;
             $job['started'] = \date('y-m-d h:m:s');

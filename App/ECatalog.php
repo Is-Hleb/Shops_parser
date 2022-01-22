@@ -83,6 +83,7 @@ class ECatalog extends ShopsParserController
                 $span = $link->find('.u')[0];
                 $productName = $span->text;
 
+
                 // Link to product properties
                 $productsLinkToInsert = "https://www.e-katalog.ru/ek-item.php?resolved_name_={$name}&view_=tbl";
 

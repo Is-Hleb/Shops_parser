@@ -97,6 +97,7 @@ class ECatalog extends ShopsParserController
             // Update products with saving all previous values
             $this->cacheSet('products', $products);
             $this->cacheUpdate();
+            $this->currentJob->putContent("end of uploading $curPage page");
         }
     }
 

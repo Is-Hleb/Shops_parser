@@ -4,154 +4,109 @@ namespace App\TasksQueue;
 
 class TasksQueue
 {
-    private array $queue;
+
+    private static self $instance;
+
+    private array $queueJobs;
     private array $jobs;
-    private bool $running = false;
-    private const FILE = "queue.json";
+    private string $queueFile;
 
-    public const ENDED = 0;
-    public const RUNNING = 1;
-    public const WAITING = 2;
-    public const FAILED = 3;
-
-
-    public function __construct() {
-        $path = __DIR__ . '/' . self::FILE;
-        if (!file_exists($path)) {
-            fopen($path, 'w');
-        }
-        if(!is_dir(LOGS_FILES_PATH . '/jobs')) {
-            mkdir(LOGS_FILES_PATH . '/jobs');
-        }
-        $json = file_get_contents($path);
-        $this->jobs = json_decode($json, true) ?? [];
-
-        foreach ($this->jobs as $job) {
-            if ($job['status'] == self::RUNNING) {
-                $this->running = true;
-            }
-        }
-
-        $this->queue = array_filter($this->jobs, function ($job) {
-            return $job['status'] == self::WAITING;
-        });
+    protected function __clone() {
     }
 
+    protected function __construct() {
+        $this->queueFile = __DIR__ . '/queue.json';
+        $this->jobs = [];
+        $this->queueJobs = [];
+
+        if (!file_exists($this->queueFile)) {
+            fopen($this->queueFile, 'w');
+        }
+        $json = json_decode(file_get_contents($this->queueFile, 'w'), true) ?? [];
+        if (!empty($json)) {
+            foreach ($json as $jobArray) {
+                $this->jobs[] = Job::fromArray($jobArray);
+            }
+            if (!empty($this->jobs)) {
+                foreach ($this->jobs as $job) {
+                    if ($job->getStatus() == Job::WAITING || $job->getStatus() == Job::RUNNING) {
+                        $this->queueJobs[] = $job;
+                    }
+                }
+            }
+        }
+    }
+
+    // TODO replace as saving jobs into DB
     public function __destruct() {
-        $path = __DIR__ . '/' . self::FILE;
+        $this->updateData();
+    }
+
+    public function addJob(Job $job) {
+        $this->queueJobs[count($this->queueJobs)] = $job;
+        $this->jobs[] = $job;
+    }
+
+    public function runLast() {
+        if (!$this->queueJobs[0]->isActive()) {
+            $this->queueJobs[0]->execute();
+        }
+    }
+
+    public function getLast(): Job {
+        return $this->queueJobs[0];
+    }
+
+    public function getLastActive(): Job|null {
+        foreach ($this->jobs as $job) {
+            if ($job->isActive()) {
+                return $job;
+            }
+        }
+
+        return null;
+
+    }
+
+    public function someJobIsRunning(): bool {
+        return $this->queueJobs[0]->isActive();
+    }
+
+    public function getJobByName(string $name): Job|null {
         foreach ($this->jobs as &$job) {
-            $job['lastSeen'] = \date('y-m-d h:m:s');
+            if ($job->getName() == $name) {
+                return $job;
+            }
         }
-        file_put_contents($path, json_encode($this->jobs));
+        return null;
     }
 
-    public function isset(string $name): bool {
+    /**
+     * @throws \Exception
+     */
+    public function __wakeup() {
+        throw new \Exception("Cannot unserialize a Queue twice.");
+    }
+
+    public function jobIssetAndRunning($name): bool {
+        $job = $this->getJobByName($name);
+        return $job != null;
+    }
+
+    public function updateData() : void{
+        $output = [];
         foreach ($this->jobs as $job) {
-            if($job['name'] == $name) {
-                return true;
-            }
+            $output[] = $job->toArray();
         }
-        return false;
+        $output = json_encode($output);
+        file_put_contents($this->queueFile, $output);
     }
 
-
-    public function insert($name, $class, $method) {
-        $logPath = LOGS_FILES_PATH . "/jobs/$name.log";
-        if(!file_exists($logPath)) {
-            fopen($logPath, "w");
+    public static function getInstance(): TasksQueue {
+        if (!isset(self::$instance)) {
+            self::$instance = new self();
         }
 
-        $job = [
-            'name' => $name,
-            'status' => self::WAITING,
-            'class' => $class,
-            'method' => $method
-        ];
-
-        $this->queue[] = $job;
-        $this->jobs[$name] = $job;
-    }
-
-    public function run() {
-        $job = &$this->queue[0];
-        $command = "php Runner.php " . str_replace('\\', '-', $job['class']) . " {$job['method']} {$job['name']} > logs/jobs/{$job['name']}.log &";
-
-        if(PHP_OS == 'WINNT') {
-            $command = "START /B $command";
-            $command = str_replace('&', '', $command);
-        }
-        echo $command;
-        // return;
-        if (!$this->running) {
-            if(PHP_OS == 'WINNT') {
-                pclose(popen($command, 'r'));
-                $output = [];
-            } else {
-                exec($command, $output);
-            }
-            $job['status'] = self::RUNNING;
-            $job['output'] = $output;
-            $job['started'] = \date('y-m-d h:m:s');
-            $this->jobs[$job['name']] = $job;
-        }
-    }
-
-    public function stop($name, $status = self::ENDED, $output = "") {
-        $this->jobs[$name]['status'] = $status;
-        $this->jobs[$name]['output'] = $output;
-    }
-
-    public function getActiveJob() {
-        $job = array_values(array_filter($this->jobs, function($job){
-           return $job['status'] == self::RUNNING;
-        }))[0] ?? [];
-
-        if(empty($job)) {
-            return [];
-        }
-
-        return $job;
-    }
-
-    public function getLastJob() {
-        $dateArray = [];
-        $jobs = array_filter($this->jobs, function($job){
-           return isset($job['started']);
-        });
-        foreach($jobs as $key => $job){
-            $dateArray[$key] = $job['started'];
-        }
-        array_multisort($dateArray, SORT_STRING, $jobs);
-        $jobs = array_values($jobs);
-
-        $job = $jobs[0] ?? [];
-        if(empty($job)) {
-            return $job;
-        }
-
-        return $job ?? [];
-    }
-
-    public static function format($job): array {
-        if(empty($job)) {
-            return [];
-        }
-        $job['status'] = match ($job['status']) {
-            self::RUNNING => 'RUNNING',
-            self::WAITING => 'WAITING',
-            self::FAILED => 'FAILED',
-            self::ENDED => 'ENDED',
-        };
-        return $job;
-    }
-
-    public function addToOutput($content) {
-        $job = [];
-        foreach ($this->jobs as $job) {
-            if($job['status'] == self::RUNNING) {
-                break;
-            }
-        }
-        $job['content'] .= json_encode($content);
+        return self::$instance;
     }
 }

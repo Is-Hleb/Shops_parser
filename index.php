@@ -27,6 +27,7 @@ $args = routes[CURRENT_ROUTE][2] ?? [];
 if(!is_dir('logs')) {
     mkdir('logs');
 }
-var_dump(PHP_OS);
-
+//// var_dump(PHP_OS);
 (new $class)->$method(...$args);
+//$job = new \App\TasksQueue\Job('name', \App\ECatalog::class, 'cacheClear');
+//$job->execute();

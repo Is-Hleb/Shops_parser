@@ -8,7 +8,7 @@ spl_autoload_register(function ($class) {
     require_once str_replace('\\', '/', $class) . '.php';
 });
 
-$taskQueue = new \App\TasksQueue\TasksQueue();
+$taskQueue = \App\TasksQueue\TasksQueue::getInstance();
 
 require_once 'functions.php';
 require_once 'vendor/autoload.php';
@@ -28,7 +28,7 @@ register_shutdown_function(function () use ($taskQueue) {
         $errStr  = $error["message"];
 
         $message = "$errFile : $errLine --- $errStr \n({$errno})";
-        $taskQueue->stop(JOB_NAME, $taskQueue::FAILED, $message);
+        $taskQueue->getJobByName(JOB_NAME)->stop([], $message);
     }
 });
 
@@ -48,6 +48,6 @@ ob_start();
 $runner = new Runner($argv[1], $argv[2]);
 $content = ob_get_contents();
 
-$taskQueue->stop(JOB_NAME, $taskQueue::ENDED, $content);
+$taskQueue->getJobByName(JOB_NAME)->stop($content);
 ob_end_clean();
 

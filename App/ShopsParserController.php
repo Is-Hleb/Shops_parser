@@ -3,6 +3,7 @@
 namespace App;
 
 
+use App\TasksQueue\Job;
 use PHPHtmlParser\Dom;
 use App\TasksQueue\TasksQueue;
 
@@ -10,9 +11,11 @@ abstract class ShopsParserController
 {
     abstract public function run();
     protected string $url = "";
+    protected Job $currentJob;
     protected Dom $dom;
     private string $shopName;
     private mixed $content;
+
 
     public function __construct() {
         $connected = file_get_contents("http://bgaek.by/");
@@ -35,6 +38,9 @@ abstract class ShopsParserController
 
             $this->content = json_decode(file_get_contents($fName), JSON_OBJECT_AS_ARRAY);
         }
+        $taskQueue = TasksQueue::getInstance();
+        $this->currentJob = $taskQueue->getJobByName($this->shopName);
+        $this->currentJob->putContent($this->shopName . ' Парсинг запущен');
     }
 
     public function cacheHas($key) : bool {
@@ -67,7 +73,6 @@ abstract class ShopsParserController
     }
 
     public function __destruct() {
-        $this->execute();
         $this->cacheUpdate();
     }
 

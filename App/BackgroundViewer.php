@@ -8,8 +8,10 @@ use App\TasksQueue\TasksQueue;
 class BackgroundViewer
 {
     public function getOutput() {
-        $taskQueue = new TasksQueue();
-        $job = $taskQueue->getActiveJob();
-        echo $job['output'];
+        $taskQueue = TasksQueue::getInstance();
+        $job = $taskQueue->getLastActive();
+        foreach ($job->getContent() as $item) {
+            echo $item . '<br>';
+        }
     }
 }

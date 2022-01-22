@@ -1,15 +1,14 @@
 <?php
 
-
+define("JOB_NAME", $argv[3]);
+const CACHE_ON = true;
+const LOGS_FILES_PATH = __DIR__ . '/logs';
 
 spl_autoload_register(function ($class) {
     require_once str_replace('\\', '/', $class) . '.php';
 });
 
 $taskQueue = new \App\TasksQueue\TasksQueue();
-
-define("JOB_NAME", $argv[3]);
-const CACHE_ON = true;
 
 require_once 'functions.php';
 require_once 'vendor/autoload.php';

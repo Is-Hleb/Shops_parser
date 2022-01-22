@@ -42,6 +42,7 @@ class ECatalog extends ShopsParserController
     }
 
     private function parse() : void {
+        // return;
         $loadedCategory = $this->getCategory();
         $productsLink = $loadedCategory['productsLink'];
         $categoryLink = $loadedCategory['categoryLink'];

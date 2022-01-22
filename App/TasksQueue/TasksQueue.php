@@ -20,6 +20,9 @@ class TasksQueue
         if (!file_exists($path)) {
             fopen($path, 'w');
         }
+        if(!is_dir(LOGS_FILES_PATH . '/jobs')) {
+            mkdir(LOGS_FILES_PATH . '/jobs');
+        }
         $json = file_get_contents($path);
         $this->jobs = json_decode($json, true) ?? [];
 
@@ -53,7 +56,12 @@ class TasksQueue
 
 
     public function insert($name, $class, $method) {
-        $command = "php Runner.php " . str_replace('\\', '-', $class) . " $method $name > /dev/null 2>/dev/null &";
+        //$command = "php Runner.php " . str_replace('\\', '-', $class) . " $method $name > /dev/null 2>/dev/null &";
+        $logPath = LOGS_FILES_PATH . "/jobs/$name.log";
+        if(!file_exists($logPath)) {
+            fopen($logPath, "w");
+        }
+        $command = "php Runner.php " . str_replace('\\', '-', $class) . " $method $name >> logs/jobs/$name.log &";
         $job = [
             'name' => $name,
             'status' => self::WAITING,

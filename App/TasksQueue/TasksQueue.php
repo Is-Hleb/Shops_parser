@@ -61,7 +61,7 @@ class TasksQueue
         if(!file_exists($logPath)) {
             fopen($logPath, "w");
         }
-        $command = "php Runner.php " . str_replace('\\', '-', $class) . " $method $name >> logs/jobs/$name.log &";
+        $command = "php Runner.php " . str_replace('\\', '-', $class) . " $method $name > logs/jobs/$name.log &";
         $job = [
             'name' => $name,
             'status' => self::WAITING,

@@ -131,7 +131,13 @@ class TasksQueue
         return $job;
     }
 
-    public function setContent($content) {
-
+    public function addToOutput($content) {
+        $job = [];
+        foreach ($this->jobs as $job) {
+            if($job['status'] == self::RUNNING) {
+                break;
+            }
+        }
+        $job['content'] .= json_encode($content);
     }
 }

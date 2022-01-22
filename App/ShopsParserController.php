@@ -4,7 +4,7 @@ namespace App;
 
 
 use PHPHtmlParser\Dom;
-
+use App\TasksQueue\TasksQueue;
 
 abstract class ShopsParserController
 {
@@ -67,6 +67,7 @@ abstract class ShopsParserController
     }
 
     public function __destruct() {
+        $this->execute();
         $this->cacheUpdate();
     }
 

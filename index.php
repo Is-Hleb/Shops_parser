@@ -15,32 +15,21 @@ spl_autoload_register(function ($class) {
 });
 
 const routes = [
-    '/' => [\App\ECatalog::class, 'run'],
+    '/' => [\App\TasksQueue\JobRunner::class, 'run', [\App\ECatalog::class, 'run']],
     'cache/clear' => [\App\ECatalog::class, 'cacheClear'],
+    'output' => [\App\BackgroundViewer::class, 'getOutput']
 ];
 
 $class = routes[CURRENT_ROUTE][0];
 $method = routes[CURRENT_ROUTE][1];
+$args = routes[CURRENT_ROUTE][2] ?? [];
 
 if(!is_dir('logs')) {
     mkdir('logs');
 }
+var_dump(PHP_OS);
 
-use App\TasksQueue\TasksQueue;
-
-$taskQueue = new TasksQueue();
-$lastJob = $taskQueue->getLastJob();
-d($lastJob );
-if(!$taskQueue->isset('ECatalog')) {
-    $taskQueue->insert('ECatalog', $class, $method);
-    $taskQueue->run();
-}
-$active = $taskQueue->getActiveJob();
-if($lastJob['status'] == TasksQueue::FAILED) {
-    $taskQueue->insert('ECatalog', $class, $method);
-    $taskQueue->run();
-}
-d($active);
+(new $class)->$method(...$args);
 
 // $process = new PhpProcess(file_get_contents( "Runner.php"));
 // $process->setOptions(['create_new_console' => true]);

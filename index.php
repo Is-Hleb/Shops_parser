@@ -15,7 +15,7 @@ spl_autoload_register(function ($class) {
 });
 
 const routes = [
-    '/' => [\App\TasksQueue\JobRunner::class, 'run', [\App\ECatalog::class, 'run']],
+    '/' => [\App\TasksQueue\JobRunner::class, 'run', [\App\ECatalog::class, 'run', 'category1']],
     'cache/clear' => [\App\ECatalog::class, 'cacheClear'],
     'output' => [\App\BackgroundViewer::class, 'getOutput']
 ];

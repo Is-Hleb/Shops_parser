@@ -9,7 +9,7 @@ use App\TasksQueue\TasksQueue;
 
 abstract class ShopsParserController
 {
-    abstract public function run();
+    abstract public function run($category);
     protected string $url = "";
     protected Job $currentJob;
     protected Dom $dom;
@@ -17,13 +17,7 @@ abstract class ShopsParserController
     private mixed $content;
 
 
-    public function __construct() {
-        $connected = file_get_contents("http://bgaek.by/");
-        if(!$connected) {
-            exit(json_encode([
-                'error' => 'connection error'
-            ]));
-        }
+    public function __construct($jobName = 'ECatalog') {
         $this->dom = new Dom;
         $array = explode('\\', static::class);
         $this->shopName = end($array);
@@ -39,7 +33,7 @@ abstract class ShopsParserController
             $this->content = json_decode(file_get_contents($fName), JSON_OBJECT_AS_ARRAY);
         }
         $taskQueue = TasksQueue::getInstance();
-        $this->currentJob = $taskQueue->getJobByName($this->shopName);
+        $this->currentJob = $taskQueue->getJobByName($jobName);
         $this->currentJob->putContent($this->shopName . ' Парсинг запущен');
     }
 

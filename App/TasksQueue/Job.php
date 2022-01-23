@@ -12,21 +12,34 @@ class Job
 
     protected array $content = [];
     protected array $errors = [];
+    protected array $externalData = [];
+
+    /**
+     * @return array
+     */
+    public function getExternalData(): array {
+        return $this->externalData;
+    }
+
     protected string $name;
     protected string $class;
     protected string $method;
     protected string $logFilePath;
     protected string $command;
+    protected string $startedAt = "";
+    protected string $stoppedAt = "";
+
     protected int $status;
     protected bool $active = false;
     protected TasksQueue $queue;
 
-    public function __construct($name, $class, $method) {
+    public function __construct($name, $class, $method, $externalData = []) {
         $this->method = $method;
         $this->class = $class;
         $this->name = $name;
         $this->status = self::WAITING;
         $this->logFilePath = LOGS_FILES_PATH . "/jobs/$name.log";
+        $this->externalData = $externalData;
 
         if(!is_dir(LOGS_FILES_PATH . '/jobs')) {
             mkdir(LOGS_FILES_PATH . '/jobs');
@@ -38,7 +51,9 @@ class Job
 
         $command = "php Runner.php "
             . str_replace('\\', '-', $this->class)
-            . " $this->method $this->name > logs/jobs/$this->name.log &"
+            . " $this->method $this->name "
+            . "'" . json_encode($this->externalData) . "'"
+            ." > logs/jobs/$this->name.log &"
         ;
 
         if(PHP_OS == 'WINNT') {
@@ -62,6 +77,13 @@ class Job
      */
     public function getName(): string {
         return $this->name;
+    }
+
+    /**
+     * @return string
+     */
+    public function getStartedAt(): string {
+        return $this->startedAt;
     }
 
     /**
@@ -96,6 +118,8 @@ class Job
         $this->status = self::RUNNING;
         $this->active = true;
         exec($this->command, $output, $code);
+        $this->startedAt = date(DATE_ATOM);
+        TasksQueue::getInstance()->updateData();
     }
 
     public static function fromArray(array $job) : Job{
@@ -115,17 +139,26 @@ class Job
         $output['command'] = $this->command;
         $output['errors'] = $this->errors;
         $output['active'] = $this->status == self::RUNNING;
+        $output['externalData'] = $this->externalData;
+        if($this->startedAt != "") {
+            $output['startedAt'] = $this->startedAt;
+        }
+        if($this->stoppedAt != "") {
+            $output['stoppedAt'] = $this->stoppedAt;
+        }
 
         return $output;
     }
 
     public function putContent(string|int|float $content) {
         $this->content[] = $content;
-        $taskQueue = TasksQueue::getInstance();
-        $taskQueue->updateData();
+        TasksQueue::getInstance()->updateData();
+
     }
 
     public function stop(mixed $content = [], mixed $errors = []) {
+        $this->status = self::ENDED;
+
         if(is_array($content)) {
             $this->content = array_merge($content, $this->content);
         } else {
@@ -138,7 +171,13 @@ class Job
             $this->errors[] = $errors;
         }
 
-        $this->status = self::ENDED;
+
+        $this->active = false;
+        $this->stoppedAt = date(DATE_ATOM);
+        $this->status = empty($this->errors) ? self::ENDED : self::FAILED;
+
+        TasksQueue::getInstance()->popFront(); // Delete current job from queue
+        TasksQueue::getInstance()->updateData();
     }
 
 }

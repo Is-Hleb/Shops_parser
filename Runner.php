@@ -1,5 +1,6 @@
 <?php
 
+use \App\TasksQueue\TasksQueue;
 define("JOB_NAME", $argv[3]);
 const CACHE_ON = true;
 const LOGS_FILES_PATH = __DIR__ . '/logs';
@@ -8,12 +9,12 @@ spl_autoload_register(function ($class) {
     require_once str_replace('\\', '/', $class) . '.php';
 });
 
-$taskQueue = \App\TasksQueue\TasksQueue::getInstance();
+
 
 require_once 'functions.php';
 require_once 'vendor/autoload.php';
 
-register_shutdown_function(function () use ($taskQueue) {
+register_shutdown_function(function () {
     $errFile = "unknown file";
     $errStr  = "shutdown";
     $errno   = E_CORE_ERROR;
@@ -28,26 +29,33 @@ register_shutdown_function(function () use ($taskQueue) {
         $errStr  = $error["message"];
 
         $message = "$errFile : $errLine --- $errStr \n({$errno})";
-        $taskQueue->getJobByName(JOB_NAME)->stop([], $message);
+        TasksQueue::getInstance()->getJobByName(JOB_NAME)->stop([], $message);
     }
-});
 
+    TasksQueue::getInstance()->runLast();
+});
 
 class Runner {
     private object $job;
     public function __construct(string $class, string $method)
     {
+        ob_start();
         $class = str_replace("-", "\\", $class);
-        $this->job = new $class;
-        $this->job->$method();
+        $this->job = new $class(JOB_NAME);
+        $data = TasksQueue::getInstance()->getJobByName(JOB_NAME)->getExternalData();
+        if($data != null) {
+            $this->job->$method(...$data);
+        } else {
+            $this->job->$method(...[]);
+        }
+    }
+    public function __destruct() {
+        $content = ob_get_contents();
+        ob_end_clean();
+        // current work stop
+        TasksQueue::getInstance()->getJobByName(JOB_NAME)->stop($content);
     }
 }
 
-ob_start();
-
 $runner = new Runner($argv[1], $argv[2]);
-$content = ob_get_contents();
-
-$taskQueue->getJobByName(JOB_NAME)->stop($content);
-ob_end_clean();
 

@@ -29,7 +29,7 @@ class TasksQueue
             }
             if (!empty($this->jobs)) {
                 foreach ($this->jobs as $job) {
-                    if ($job->getStatus() == Job::WAITING || $job->getStatus() == Job::RUNNING) {
+                    if ($job->getStatus() == Job::WAITING) {
                         $this->queueJobs[] = $job;
                     }
                 }
@@ -48,9 +48,16 @@ class TasksQueue
     }
 
     public function runLast() {
+        if(!isset($this->queueJobs[0])) {
+            return;
+        }
         if (!$this->queueJobs[0]->isActive()) {
             $this->queueJobs[0]->execute();
         }
+    }
+
+    public function popFront() : void {
+        array_unshift($this->queueJobs);
     }
 
     public function getLast(): Job {
@@ -69,7 +76,12 @@ class TasksQueue
     }
 
     public function someJobIsRunning(): bool {
-        return $this->queueJobs[0]->isActive();
+        foreach ($this->jobs as $job) {
+            if($job->isActive()) {
+                return true;
+            }
+        }
+        return false;
     }
 
     public function getJobByName(string $name): Job|null {

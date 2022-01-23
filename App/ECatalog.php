@@ -98,11 +98,13 @@ class ECatalog extends ShopsParserController
             $this->cacheSet('products', $products);
             $this->cacheUpdate();
             $this->currentJob->putContent("end of uploading $curPage page");
+            if($limit-- < 0) return;
         }
     }
 
-    public function run()
+    public function run($categories)
     {
+        $this->currentJob->putContent("START PROCESSING $categories CATEGORY");
         $this->parse();
     }
 }

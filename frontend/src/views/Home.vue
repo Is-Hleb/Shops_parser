@@ -1,18 +1,33 @@
 <template>
-  <div class="home">
-    <img alt="Vue logo" src="../assets/logo.png">
-    <HelloWorld msg="Welcome to Your Vue.js App"/>
-  </div>
+  <MDBAccordion flush>
+    <MDBAccordionItem
+        headerTitle="Job 1 ECatalog"
+        collapseId="flush-collapseOne"
+    >
+      <MDBCol col="4">
+        <MDBCard>
+          <MDBListGroup flush>
+            <MDBListGroupItem action>Category url</MDBListGroupItem>
+            <MDBListGroupItem action>Dapibus ac facilisis in</MDBListGroupItem>
+            <MDBListGroupItem action>Vestibulum at eros</MDBListGroupItem>
+          </MDBListGroup>
+        </MDBCard>
+      </MDBCol>
+    </MDBAccordionItem>
+  </MDBAccordion>
 </template>
 
 <script>
-// @ is an alias to /src
-import HelloWorld from '@/components/HelloWorld.vue'
+import {MDBAccordion, MDBAccordionItem, MDBCard, MDBListGroup, MDBListGroupItem, MDBCol} from "mdb-vue-ui-kit";
 
 export default {
-  name: 'Home',
   components: {
-    HelloWorld
-  }
-}
+    MDBAccordion,
+    MDBAccordionItem,
+    MDBCard,
+    MDBListGroup,
+    MDBListGroupItem,
+    MDBCol
+  },
+};
 </script>

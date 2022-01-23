@@ -1,7 +1,2 @@
 .vendor
 .idea
-frontend/node_modules
-ECatalog
-vendor
-logs
-App/TasksQueue/queue.json

@@ -3,18 +3,21 @@
 namespace App;
 
 
+use App\TasksQueue\Job;
 use PHPHtmlParser\Dom;
-
+use App\TasksQueue\TasksQueue;
 
 abstract class ShopsParserController
 {
-    abstract public function run();
+    abstract public function run($category);
     protected string $url = "";
+    protected Job $currentJob;
     protected Dom $dom;
     private string $shopName;
     private mixed $content;
 
-    public function __construct() {
+
+    public function __construct($jobName = 'ECatalog') {
         $this->dom = new Dom;
         $array = explode('\\', static::class);
         $this->shopName = end($array);
@@ -29,6 +32,9 @@ abstract class ShopsParserController
 
             $this->content = json_decode(file_get_contents($fName), JSON_OBJECT_AS_ARRAY);
         }
+        $taskQueue = TasksQueue::getInstance();
+        $this->currentJob = $taskQueue->getJobByName($jobName);
+        $this->currentJob->putContent($this->shopName . ' Парсинг запущен');
     }
 
     public function cacheHas($key) : bool {
@@ -44,6 +50,10 @@ abstract class ShopsParserController
         $this->content[$key] = $value;
     }
 
+    public function cacheAdd(string $keyL1, array $value) {
+        $this->content[$keyL1] = array_merge($value, $this->content[$keyL1]);
+    }
+
     public function cacheGet($key) {
         return $this->content[$key] ?? false;
     }
@@ -57,6 +67,10 @@ abstract class ShopsParserController
     }
 
     public function __destruct() {
+        $this->cacheUpdate();
+    }
+
+    public function cacheUpdate() : void {
         if(!CACHE_ON) {
             return;
         }

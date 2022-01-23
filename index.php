@@ -4,7 +4,7 @@ ini_set("max_execution_time", 60 * 60 * 24 * 365);
 const CACHE_ON = true;
 const INDEX_FILE_PATH = __DIR__;
 const LOGS_FILES_PATH = __DIR__ . '/logs';
-define("CURRENT_ROUTE", $_GET['route'] ?? '/');
+define("CURRENT_ROUTE", empty($_GET['route']) ? '/' : $_GET['route']);
 define("EXPLODED_ROUTES", explode('/', CURRENT_ROUTE));
 
 require_once 'vendor/autoload.php';
@@ -15,7 +15,18 @@ spl_autoload_register(function ($class) {
 });
 
 const routes = [
-    '/' => [
+    '/' =>  [
+        \App\TasksQueue\JobRunner::class, 'runMany',
+        [
+            \App\ECatalog::class, 'run', [
+            'category1',
+            'category2',
+            'category3',
+            'category4'
+        ]
+        ]
+    ],
+    'add-job' => [
         \App\TasksQueue\JobRunner::class, 'runMany',
         [
             \App\ECatalog::class, 'run', [
@@ -30,6 +41,7 @@ const routes = [
     'output' => [\App\BackgroundViewer::class, 'getOutput']
 ];
 
+
 $class = routes[CURRENT_ROUTE][0];
 $method = routes[CURRENT_ROUTE][1];
 $args = routes[CURRENT_ROUTE][2] ?? [];
@@ -37,7 +49,6 @@ $args = routes[CURRENT_ROUTE][2] ?? [];
 if(!is_dir('logs')) {
     mkdir('logs');
 }
-//// var_dump(PHP_OS);
+
 (new $class)->$method(...$args);
-//$job = new \App\TasksQueue\Job('name', \App\ECatalog::class, 'cacheClear');
-//$job->execute();
+

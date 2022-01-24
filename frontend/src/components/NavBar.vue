@@ -1,18 +1,27 @@
 <template>
   <MDBContainer>
-    <MDBTabs v-model="activeTabId4" vertical>
+    <MDBTabs class="mt-5 shadow-2-soft" vertical>
       <!-- Tabs navs -->
-      <MDBTabNav class="shadow-2-soft" pills tabsClasses="mb-3 text-center">
-        <MDBTabItem :wrap="false" tabId="ex4-1" href="/">Jobs</MDBTabItem>
-        <MDBTabItem :wrap="false" tabId="ex4-2" href="ex4-2">Logs</MDBTabItem>
-        <MDBTabItem :wrap="false" tabId="ex4-3" href="ex4-3">ActiveJobs</MDBTabItem>
+      <MDBTabNav class="border border-right" tabsClasses="mb-3 text-center">
+        <MDBNavbarItem :active="currentRouteName === 'jobs'" :to="{name: 'jobs'}">
+          Задачи
+        </MDBNavbarItem>
+        <MDBNavbarItem :active="currentRouteName === 'settings'" :to="{name: 'settings'}">
+          Параметры
+        </MDBNavbarItem>
+        <MDBNavbarItem :active="currentRouteName === 'job-create'" :to="{name: 'job-create'}">
+          Добавить задачу
+        </MDBNavbarItem>
+        <MDBNavbarItem :active="currentRouteName === 'setting-create'" :to="{name: 'setting-create'}">
+          Добавить параметр
+        </MDBNavbarItem>
       </MDBTabNav>
-      <!-- Tabs navs -->
-      <!-- Tabs content -->
+
+
       <MDBTabContent>
-        <router-view class="px-3 shadow-2-soft h-100"></router-view>
+        <router-view/>
       </MDBTabContent>
-      <!-- Tabs content -->
+
     </MDBTabs>
   </MDBContainer>
 </template>
@@ -21,24 +30,32 @@ import {
   MDBTabs,
   MDBTabNav,
   MDBTabContent,
-  MDBTabItem,
-  MDBContainer
+  //MDBTabItem,
+  MDBContainer,
+  MDBNavbarItem
+  // MDBTabPane
 } from 'mdb-vue-ui-kit';
-import {ref} from 'vue';
+
+// import Jobs from "@/views/Jobs";
+// import AddJobForm from "@/components/AddJobForm";
 
 export default {
   components: {
     MDBTabs,
     MDBTabNav,
     MDBTabContent,
-    MDBTabItem,
-  MDBContainer
+    //MDBTabItem,
+    MDBContainer,
+    MDBNavbarItem
+    // MDBTabPane,
+    // Jobs,
+    // AddJobForm
   },
-  setup() {
-    const activeTabId4 = ref('ex4-1');
-    return {
-      activeTabId4,
-    };
+  computed: {
+    currentRouteName() {
+      return this.$route.name;
+    }
   },
+
 };
 </script>

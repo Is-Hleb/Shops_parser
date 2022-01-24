@@ -21,6 +21,7 @@
 import {MDBAccordion, MDBAccordionItem, MDBCard, MDBListGroup, MDBListGroupItem, MDBCol} from "mdb-vue-ui-kit";
 
 export default {
+  name: "Jobs",
   components: {
     MDBAccordion,
     MDBAccordionItem,

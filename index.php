@@ -15,30 +15,31 @@ spl_autoload_register(function ($class) {
 });
 
 const routes = [
-    '/' =>  [
-        \App\TasksQueue\JobRunner::class, 'runMany',
-        [
-            \App\ECatalog::class, 'run', [
-            'category1',
-            'category2',
-            'category3',
-            'category4'
-        ]
-        ]
-    ],
-    'add-job' => [
-        \App\TasksQueue\JobRunner::class, 'runMany',
-        [
-            \App\ECatalog::class, 'run', [
-                'category1',
-                'category2',
-                'category3',
-                'category4'
-            ]
-        ]
-    ],
-    'cache/clear' => [\App\ECatalog::class, 'cacheClear'],
-    'output' => [\App\BackgroundViewer::class, 'getOutput']
+//    '/' =>  [
+//        \App\TasksQueue\JobRunner::class, 'runMany',
+//        [
+//            \App\ECatalog::class, 'run', [
+//            'category1',
+//            'category2',
+//            'category3',
+//            'category4'
+//        ]
+//        ]
+//    ],
+//    'add-job' => [
+//        \App\TasksQueue\JobRunner::class, 'runMany',
+//        [
+//            \App\ECatalog::class, 'run', [
+//                'category1',
+//                'category2',
+//                'category3',
+//                'category4'
+//            ]
+//        ]
+//    ],
+//    'cache/clear' => [\App\ECatalog::class, 'cacheClear'],
+//    'output' => [\App\BackgroundViewer::class, 'getOutput']
+    'settings' => [\App\Controllers\SettingsController::class, 'all']
 ];
 
 

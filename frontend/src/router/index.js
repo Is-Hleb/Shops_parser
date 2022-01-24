@@ -1,17 +1,33 @@
-import { createRouter, createWebHistory } from 'vue-router'
-import Home from '../views/Home.vue'
+import {createRouter, createWebHashHistory} from 'vue-router'
+import Jobs from '../views/Jobs.vue'
+
 
 const routes = [
-  {
-    path: '/',
-    name: 'Home',
-    component: Home
-  }
+    {
+        path: '/',
+        name: 'jobs',
+        component: Jobs
+    },
+    {
+        path: '/job/create',
+        name: 'job-create',
+        component: () => import("@/components/AddJobForm")
+    },
+    {
+        path: '/setting/create',
+        name: 'setting-create',
+        component: () => import("@/components/AddSettingForm")
+    },
+    {
+        path: '/setting',
+        name: 'settings',
+        component: () => import("@/components/SettingsList")
+    },
 ]
 
 const router = createRouter({
-  history: createWebHistory(),
-  routes
+    history: createWebHashHistory(),
+    routes
 })
 
 export default router

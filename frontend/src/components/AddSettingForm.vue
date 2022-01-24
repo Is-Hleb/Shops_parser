@@ -5,7 +5,7 @@
         <MDBInput
             type="text"
             label="Название настройки"
-            v-model="jobName"
+            v-model="setting.name"
             wrapper-class="mb-3"
             class="p-2"
         />
@@ -14,7 +14,7 @@
         <MDBInput
             type="text"
             label="Значение"
-            v-model="jobName"
+            v-model="setting.value"
             wrapper-class="mb-3"
             class="p-2"
         />
@@ -23,7 +23,7 @@
         <MDBInput
             type="text"
             label="Коллекция"
-            v-model="jobName"
+            v-model="setting.collection"
             wrapper-class="mb-3"
             class="p-2"
         />
@@ -31,7 +31,7 @@
     </MDBRow>
 
 
-    <MDBBtn color="primary mt-5" block>Добавить настройку</MDBBtn>
+    <MDBBtn @click="createSetting" color="primary mt-5" block>Добавить настройку</MDBBtn>
   </form>
 </template>
 <script>
@@ -41,7 +41,7 @@ import {
   MDBInput,
   MDBBtn,
 } from "mdb-vue-ui-kit";
-
+const axios = require('axios');
 
 export default {
   components: {
@@ -50,12 +50,22 @@ export default {
     MDBInput,
     MDBBtn,
   },
+  methods: {
+    createSetting() {
+      console.log(this.setting)
+      axios.post('api/setting', {setting: this.setting}).then(r => {
+        console.log(r.data)
+      })
+    }
+  },
   data() {
     return {
-      jobName: "",
       dropdown1: false,
-      selectedOption: "",
-      anotherData: {}
+      setting: {
+        name: "",
+        value: "",
+        collection: ""
+      }
     }
   },
 

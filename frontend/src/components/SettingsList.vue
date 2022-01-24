@@ -19,18 +19,41 @@
     <MDBListGroupItem v-for="setting in settings" :key="setting.key">
       <MDBRow>
         <MDBCol class="d-flex" col="3">
-          <p class="align-self-center">{{ setting.name }}</p>
+          <p v-if="!setting.onEdit" class="align-self-center">{{ setting.name }}</p>
+          <MDBInput
+            v-else
+            title="Название"
+            v-model="setting.name"
+            label="Название"
+            type="text"
+          />
         </MDBCol>
         <MDBCol class="d-flex" col="3">
-          <p class="align-self-center">{{ setting.value }}</p>
+          <p v-if="!setting.onEdit" class="align-self-center">{{ setting.value }}</p>
+          <MDBInput
+              v-else
+              class="d-block h-50 align-self-center"
+              title="Название"
+              v-model="setting.value"
+              label="Название"
+              type="text"
+          />
         </MDBCol>
         <MDBCol class="d-flex" col="3">
-          <p class="align-self-center">{{ setting.collection }}</p>
+          <p v-if="!setting.onEdit" class="align-self-center">{{ setting.collection }}</p>
+          <MDBInput
+              v-else
+              class="d-block h-50 align-self-center"
+              title="Название"
+              v-model="setting.collection"
+              label="Название"
+              type="text"
+          />
         </MDBCol>
         <MDBCol col="3">
           <MDBRow>
-            <MDBBtn class="btn-warning">Редактировать</MDBBtn>
-            <MDBBtn class="btn-danger">Удалить</MDBBtn>
+            <MDBBtn @click="setEdit(setting.key)" class="btn-warning border-0 rounded-0">Редактировать</MDBBtn>
+            <MDBBtn class="btn-danger border-0 rounded-0">Удалить</MDBBtn>
           </MDBRow>
         </MDBCol>
       </MDBRow>
@@ -43,39 +66,50 @@ import {
   MDBListGroupItem,
   MDBCol,
   MDBBtn,
-  MDBRow
+  MDBRow,
+  MDBInput
 } from "mdb-vue-ui-kit";
 
-const conf = require('../axios.json');
+
 const axios = require('axios');
-console.log(conf)
+
 export default {
   components: {
     MDBListGroup,
     MDBListGroupItem,
     MDBCol,
     MDBBtn,
-    MDBRow
+    MDBRow,
+    MDBInput
   },
   data() {
     return {
-      settings: []
+      settings: [],
+      onEditKey: -1,
+    }
+  },
+  methods: {
+    setEdit(key) {
+      this.settings[key].onEdit = !this.settings[key].onEdit;
+
     }
   },
   beforeMount() {
-    axios.get(conf.url + '/api/settings', {
+    axios.get('/api/settings', {
       headers: {
         accept: 'application/json'
       }
     }).then(r => {
-      let data = r.data.data.categories, output = [];
+      let data = r.data.data.settings, output = [];
 
       for (let i = 0; i < data.length; i++) {
         output.push({
-          name: "Категория",
-          value: data[i],
-          collection: 'Категории',
+          name: data[i].name,
+          value: data[i].value,
+          collection: data[i].collection,
+          id: data[i].id,
           key: i,
+          onEdit: false,
         });
       }
       this.settings = output;

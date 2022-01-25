@@ -1,5 +1,7 @@
 .vendor
 .idea
-vendor/*
+vendor
+frontend/node_modules
 ECatalog
 logs
+frontend/dist

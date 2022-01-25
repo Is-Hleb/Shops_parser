@@ -1,9 +1,14 @@
-DirectoryIndex index.php
-Options +SymLinksIfOwnerMatch
-RewriteEngine ON
+<ifModule mod_rewrite.c>
+RewriteEngine On
 RewriteBase /
 
-RewriteCond %{SCRIPT_FILENAME} !-d  
-RewriteCond %{SCRIPT_FILENAME} !-f  
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
 
-RewriteRule ^(.*)$ ./index.php?route=$1 [L]
+RewriteRule ^api/(.*)$ index.php?route=$1 [L]
+
+RewriteCond %{REQUEST_URI} !^/frontend/dist/
+RewriteCond %{REQUEST_URI} !^/index\.php
+RewriteRule (.*)$ frontend/dist/$1 [L]
+
+</ifModule>

@@ -1,0 +1,78 @@
+<template>
+  <MDBContainer>
+    <div
+      class="d-flex justify-content-center align-items-center"
+      style="height: 100vh"
+    >
+      <div class="text-center">
+        <img
+          class="mb-4"
+          src="https://mdbootstrap.com/img/logo/mdb-transparent-250px.png"
+          style="width: 250px; height: 90px"
+        />
+        <h5 class="mb-3">
+          Thank you for using our product. We're glad you're with us.
+        </h5>
+        <p>
+          We hope it exceeds your expectations.<br />
+          1. Please report all bugs on our
+          <a href="https://mdbootstrap.com/support/cat/standard/"
+            >support forum</a
+          ><br />
+          2. Help us improve with a
+          <a href="https://forms.gle/RDgpTr9z5SAx2Y5w9"
+            >4 minute feedback survey</a
+          ><br />
+          3. Access MDB GO for
+          <a href="https://mdbootstrap.com/docs/standard/cli/"
+            >free hosting & deployment</a
+          ><br />
+        </p>
+        <p>
+          Keep coding,<br />
+          MDB Team
+        </p>
+        <hr />
+        <a
+          class="btn btn-primary btn-lg btn-block"
+          href="https://mdbootstrap.com/docs/standard/getting-started/"
+          target="_blank"
+          role="button"
+          >Start with MDB tutorials</a
+        >
+        <a
+          class="btn btn-primary btn-lg btn-block"
+          href="https://mdbootstrap.com/docs/standard/cli/"
+          target="_blank"
+          role="button"
+          >Start with backend template</a
+        >
+        <p class="mt-3 text-center mb-0">PS. Free users get PRO cheaper</p>
+        <a
+          class="btn btn-danger btn-lg btn-block"
+          href="https://mdbootstrap.com/sale/unique/"
+          target="_blank"
+          role="button"
+          >UPGRADE WITH DISCOUNT</a
+        >
+      </div>
+    </div>
+  </MDBContainer>
+</template>
+
+<script>
+import { MDBContainer } from "mdb-vue-ui-kit";
+
+export default {
+  name: "HelloWorld",
+  components: {
+    MDBContainer,
+  },
+  props: {
+    msg: String,
+  },
+};
+</script>
+
+<!-- Add "scoped" attribute to limit CSS to this component only -->
+<style scoped></style>

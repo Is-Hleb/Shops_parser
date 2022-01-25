@@ -31,7 +31,6 @@ class Setting {
      */
     protected string $collection;
 
-
     /**
      * @return string
      */

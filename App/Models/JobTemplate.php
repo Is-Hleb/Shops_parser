@@ -92,5 +92,4 @@ class JobTemplate {
      * @ORM\OneToMany(targetEntity="Job", mappedBy="jobs")
      */
     private $jobs;
-
 }

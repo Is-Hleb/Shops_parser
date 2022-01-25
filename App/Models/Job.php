@@ -231,5 +231,4 @@ class Job {
      * @ORM\JoinColumn(name="jobTemplate_id", referencedColumnName="id")
      */
     private $jobTemplate;
-
 }

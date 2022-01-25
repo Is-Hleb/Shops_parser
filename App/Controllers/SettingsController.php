@@ -31,7 +31,6 @@ class SettingsController extends Controller
 
         $this->entityManager->persist($setting);
         $this->entityManager->flush();
-
         $this->success($this->post);
     }
 }

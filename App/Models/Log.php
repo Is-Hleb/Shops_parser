@@ -72,5 +72,4 @@ class Log {
      * @ORM\JoinColumn(name="job_id", referencedColumnName="id")
      */
     private $job;
-
 }

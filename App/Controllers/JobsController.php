@@ -32,7 +32,6 @@ class JobsController extends Controller
 
         $this->entityManager->persist($job);
         $this->entityManager->flush();
-
         $this->success($this->post);
     }
 }

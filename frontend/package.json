@@ -12,6 +12,7 @@
     "core-js": "^3.15.2",
     "mdb-vue-ui-kit": "1.9.0",
     "vue": "^3.1.5",
+    "vue-basic-alert": "^1.1.0",
     "vue-router": "^4.0.10"
   },
   "devDependencies": {

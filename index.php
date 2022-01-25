@@ -42,10 +42,13 @@ const routes = [
 //    'cache/clear' => [\App\ECatalog::class, 'cacheClear'],
 //    'output' => [\App\BackgroundViewer::class, 'getOutput']
     "GET" => [
-        'settings' => [\App\Controllers\SettingsController::class, 'all']
+        'settings' => [\App\Controllers\SettingsController::class, 'all'],
+        'settings/collections' => [\App\Controllers\SettingsController::class, 'allCollections']
     ],
     "POST" => [
-        'setting' => [\App\Controllers\SettingsController::class, 'create']
+        'setting' => [\App\Controllers\SettingsController::class, 'create'],
+        'setting/delete' => [\App\Controllers\SettingsController::class, 'delete'],
+        'setting/edit' => [\App\Controllers\SettingsController::class, 'edit']
     ]
 ];
 

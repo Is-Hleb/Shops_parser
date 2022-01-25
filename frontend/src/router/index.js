@@ -19,6 +19,11 @@ const routes = [
         component: () => import("@/components/AddSettingForm")
     },
     {
+        path: '/job/template/create',
+        name: 'job-template-create',
+        component: () => import("@/components/AddJobTemplate")
+    },
+    {
         path: '/setting',
         name: 'settings',
         component: () => import("@/components/SettingsList")

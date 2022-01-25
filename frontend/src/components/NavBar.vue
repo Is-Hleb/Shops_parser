@@ -9,8 +9,12 @@
         <MDBNavbarItem :active="currentRouteName === 'settings'" :to="{name: 'settings'}">
           Параметры
         </MDBNavbarItem>
+        <hr>
         <MDBNavbarItem :active="currentRouteName === 'job-create'" :to="{name: 'job-create'}">
           Добавить задачу
+        </MDBNavbarItem>
+        <MDBNavbarItem :active="currentRouteName === 'job-template-create'" :to="{name: 'job-template-create'}">
+          Добавить Шаблон для задачи
         </MDBNavbarItem>
         <MDBNavbarItem :active="currentRouteName === 'setting-create'" :to="{name: 'setting-create'}">
           Добавить параметр

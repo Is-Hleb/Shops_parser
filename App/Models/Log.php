@@ -5,7 +5,7 @@ use Doctrine\ORM\Mapping as ORM;
 
 /**
  * @ORM\Entity
- * @ORM\Table(name="logs")
+ * @ORM\Table(name="logs", options={"collate"="utf8_general_ci"})
  */
 class Log {
 

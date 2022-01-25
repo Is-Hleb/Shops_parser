@@ -1,5 +1,5 @@
 <template>
-  <MDBListGroup>
+  <MDBListGroup class="rounded-0">
     <MDBListGroupItem class="border-bottom border-2">
       <MDBRow>
         <MDBCol class="d-flex" col="3">
@@ -60,7 +60,7 @@
     </MDBListGroupItem>
   </MDBListGroup>
   <div class="mb-5">
-    <MDBBtn v-for="btn in btnCount" :key="btn" :class="btn === activeBtn ? 'btn-warning' : ''"
+    <MDBBtn class="rounded-0 ms-0 me-2 shadow-0 border border-warning mt-3" v-for="btn in btnCount" :key="btn" :class="btn === activeBtn ? 'btn-warning' : ''"
             @click="showSettings(btn)">{{ btn }}
     </MDBBtn>
   </div>

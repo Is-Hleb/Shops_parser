@@ -5,7 +5,7 @@ use Doctrine\ORM\Mapping as ORM;
 
 /**
  * @ORM\Entity
- * @ORM\Table(name="jobs")
+ * @ORM\Table(name="jobs", options={"collate"="utf8_general_ci"})
  */
 class Job {
 
@@ -17,7 +17,7 @@ class Job {
     protected int $id;
 
     /**
-     * @ORM\Column(type="string", nullable="false")
+     * @ORM\Column(type="string", nullable=false)
      */
     protected string $name;
 
@@ -27,39 +27,49 @@ class Job {
     protected string $status;
 
     /**
-     * @ORM\Column(type="string", nullable="false")
-     */
-    protected string $class;
-
-    /**
-     * @ORM\Column(type="string", nullable="false")
-     */
-    protected string $method;
-
-    /**
-     * @ORM\Column(type="string", nullable="false")
+     * @ORM\Column(type="string", nullable=false)
      */
     protected string $command;
 
     /**
-     * @ORM\Column(type="boolean", nullable="true")
+     * @ORM\Column(type="boolean", options={"default":0})
      */
     protected string $active;
 
     /**
-     * @ORM\Column(type="json", name="external_data", nullable="false")
+     * @ORM\Column(type="json", name="external_data", nullable=false)
      */
     protected string $externalData;
 
     /**
-     * @ORM\Column(type="datetime", name="started_at")
+     * @ORM\Column(type="datetime", name="started_at", nullable=true)
      */
     protected string $started;
 
     /**
-     * @ORM\Column(type="datetime", name="finished_at", nullable="false")
+     * @ORM\Column(type="datetime", name="finished_at", nullable=true)
      */
     protected string $finished;
+
+    /**
+     * @ORM\OneToMany(targetEntity="Log", mappedBy="logs")
+     */
+    private array $logs;
+
+    /**
+     * @ORM\ManyToOne(targetEntity="JobTemplate", inversedBy="jobTemplate")
+     * @ORM\JoinColumn(name="job_template_id", referencedColumnName="id")
+     */
+    private JobTemplate $jobTemplate;
+
+    public function setTemplate(JobTemplate $jobTemplate) {
+        $jobTemplate->addJob($this);
+        $this->jobTemplate = $jobTemplate;
+    }
+
+    public function getJobTemplate() : JobTemplate {
+        return $this->jobTemplate;
+    }
 
     /**
      * @return string
@@ -94,19 +104,19 @@ class Job {
     }
 
     /**
-     * @return string
+     * @return array
      */
-    public function getExternalData(): string
+    public function getExternalData(): array
     {
-        return $this->externalData;
+        return json_decode($this->externalData, true) ?? [];
     }
 
     /**
-     * @param string $externalData
+     * @param array $externalData
      */
-    public function setExternalData(string $externalData): void
+    public function setExternalData(array $externalData): void
     {
-        $this->externalData = $externalData;
+        $this->externalData = json_encode($externalData);
     }
 
     /**
@@ -138,34 +148,6 @@ class Job {
     }
 
     /**
-     * @return string
-     */
-    public function getClass(): string {
-        return $this->class;
-    }
-
-    /**
-     * @param string $class
-     */
-    public function setClass(string $class): void {
-        $this->class = $class;
-    }
-
-    /**
-     * @return string
-     */
-    public function getMethod(): string {
-        return $this->method;
-    }
-
-    /**
-     * @param string $method
-     */
-    public function setMethod(string $method): void {
-        $this->name = $method;
-    }
-
-    /**
      * @return int
      */
     public function getId(): int {
@@ -189,6 +171,13 @@ class Job {
     }
 
     /**
+     * @param string $finished
+     */
+    public function setFinished(string $finished): void {
+        $this->finished = $finished;
+    }
+
+    /**
      * @return string
      */
     public function getFinished(): string
@@ -196,21 +185,11 @@ class Job {
         return $this->finished;
     }
 
-    /**
-     * @param string $finished
-     */
-    public function setFinished(string $finished): void
-    {
-        $this->finished = $finished;
-    }
-
     public function getToRead() {
         return [
             $this->id,
             $this->name,
-            $this->class,
             $this->status,
-            $this->method,
             $this->command,
             $this->active,
             $this->externalData,
@@ -218,18 +197,5 @@ class Job {
             $this->finished
         ];
     }
-
-    /**
-     * One product has many features. This is the inverse side.
-     * @ORM\OneToMany(targetEntity="Log", mappedBy="logs")
-     */
-    private $logs;
-
-    /**
-     * Many features have one product. This is the owning side.
-     * @ORM\ManyToOne(targetEntity="JobTemplate", inversedBy="jobTemplate")
-     * @ORM\JoinColumn(name="jobTemplate_id", referencedColumnName="id")
-     */
-    private $jobTemplate;
 
 }

@@ -6,6 +6,23 @@ use App\Models\Setting;
 
 class SettingsController extends Controller
 {
+    private function uploadSettings() {
+
+        $json = file_get_contents('ECatalog/settings.json');
+        $json = json_decode($json, true);
+        $categories = $json['categories'];
+
+        foreach ($categories as $category) {
+            $setting = new Setting();
+            $setting->setName('Category');
+            $setting->setValue($category);
+            $setting->setCollection('ECatalog/categories');
+            $this->entityManager->persist($setting);
+            $this->entityManager->flush();
+        }
+
+    }
+
     public function all() {
         $settings = $this->entityManager->getRepository(Setting::class)->findAll();
         $outputSettings = [];

@@ -5,7 +5,8 @@ import App from './App.vue'
 import router from './router'
 import VueBasicAlert from 'vue-basic-alert'
 
-createApp(App)
+const app = createApp(App)
     .use(router)
-    .use(VueBasicAlert)
-    .mount('#app');
+    .use(VueBasicAlert);
+
+app.mount('#app');

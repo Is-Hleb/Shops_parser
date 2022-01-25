@@ -21,9 +21,7 @@ class JobsController extends Controller
         $postJob = $this->post['job'];
 
         $job->setName($postJob['name']);
-        $job->setClass($postJob['class']);
         $job->setStatus($postJob['status']);
-        $job->setMethod($postJob['method']);
         $job->setCommand($postJob['command']);
         $job->setActive($postJob['active']);
         $job->setExternalData($postJob['externalData']);

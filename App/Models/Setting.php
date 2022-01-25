@@ -17,17 +17,17 @@ class Setting {
     protected int $id;
 
     /**
-     * @ORM\Column(type="string")
+     * @ORM\Column(type="string", nullable="false")
      */
     protected string $name;
 
     /**
-     * @ORM\Column(type="string")
+     * @ORM\Column(type="string", nullable="false")
      */
     protected string $value;
 
     /**
-     * @ORM\Column(type="string")
+     * @ORM\Column(type="string", nullable="false")
      */
     protected string $collection;
 

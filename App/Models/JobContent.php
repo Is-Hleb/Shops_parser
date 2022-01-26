@@ -54,4 +54,11 @@ class JobContent
         return $this->content;
     }
 
+    public function getToRead() {
+        return [
+            'id' => $this->id,
+            'type' => $this->type
+        ];
+    }
+
 }

@@ -57,6 +57,7 @@ const routes = [
         // Jobs Urls
         'job/template' => [\App\Controllers\JobTemplateController::class, 'create'],
         'job' => [\App\Controllers\JobController::class, 'create'],
+        'job/content' => [\App\Controllers\JobController::class, 'getContent'],
     ]
 ];
 

@@ -30,7 +30,7 @@ class Log
 
     /**
      * Many features have one product. This is the owning side.
-     * @ORM\ManyToOne(targetEntity="Job", inversedBy="job")
+     * @ORM\ManyToOne(targetEntity="Job", inversedBy="logs")
      * @ORM\JoinColumn(name="job_id", referencedColumnName="id")
      */
     private $job;

@@ -44,15 +44,15 @@ class Job {
     /**
      * @ORM\Column(type="datetime", name="started_at", nullable=true)
      */
-    protected \DateTime $started;
+    protected \DateTime|null $started = null;
 
     /**
      * @ORM\Column(type="datetime", name="finished_at", nullable=true)
      */
-    protected \DateTime $finished;
+    protected \DateTime|null $finished = null;
 
     /**
-     * @ORM\OneToMany(targetEntity="Log", mappedBy="logs")
+     * @ORM\OneToMany(targetEntity="Log", mappedBy="job")
      */
     private mixed $logs;
 
@@ -87,6 +87,22 @@ class Job {
             $log = new Log($this, $logs, $type);
             $this->logs[] = $log;
         }
+    }
+
+    public function getJobContents() : array {
+        $output = [];
+        foreach ($this->contents as $content) {
+            $output[] = $content->getToRead();
+        }
+        return $output;
+    }
+
+    public function getJobLogs(): array {
+        $output = [];
+        foreach ($this->logs as $log) {
+            $output[] = $log->returnToRead();
+        }
+        return $output;
     }
 
     public function getContents() : array{
@@ -221,6 +237,19 @@ class Job {
         $job->setExternalData($externalData);
         $job->setTemplate($jobTemplate);
         return $job;
+    }
+
+    public function getToRead() {
+        return [
+            'id' => $this->id,
+            'name' => $this->name,
+            'status' => $this->status,
+            'active' => $this->active,
+            'externalData' => $this->getExternalData(),
+            'started' => $this->started,
+            'finished' => $this->finished,
+            'logs' => $this->logs,
+        ];
     }
 
 }

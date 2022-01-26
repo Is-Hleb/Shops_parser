@@ -135,4 +135,14 @@ class JobTemplate {
         return $this->id;
     }
 
+    public function getToRead() {
+        return [
+          'id' => $this->id,
+          'name' => $this->name,
+          'class' => $this->class,
+          'method' => $this->method,
+          'description' => $this->description
+        ];
+    }
+
 }

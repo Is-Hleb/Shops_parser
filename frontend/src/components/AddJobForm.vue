@@ -2,9 +2,9 @@
   <form>
     <MDBContainer>
       <MDBRow class="w-100">
-        <MDBCol col-8>
+        <MDBCol col="8" class="">
           <MDBRow>
-            <MDBCol col="6" class="px-2">
+            <MDBCol col="6" class="px-2 ">
               <h5>Название</h5>
               <MDBInput
                   type="text"
@@ -15,7 +15,7 @@
               />
               <p>Если поле пустое, значение будет рандомным</p>
             </MDBCol>
-            <MDBCol col="6" class="px-2">
+            <MDBCol col="6" class="px-2 ">
               <h5>Группа</h5>
               <MDBListGroup class="rounded-0 scrollable">
                 <MDBListGroupItem
@@ -44,7 +44,7 @@
             </MDBCol>
           </MDBRow>
         </MDBCol>
-        <MDBCol col="4" class="px-2">
+        <MDBCol col="4" class="px-2 ">
           <h5>Параметр</h5>
           <MDBListGroup class="rounded-0 scrollable">
             <MDBListGroupItem
@@ -87,9 +87,9 @@
       <hr>
       <MDBRow>
         <h5>Шаблон задачи</h5>
-        <MDBCol col="4">
+        <MDBCol col="4" class="">
           <MDBRow>
-            <MDBListGroup class="rounded-0 p-0">
+            <MDBListGroup class="rounded-0 p-0 scrollable" style="height: 270px">
               <MDBListGroupItem
                   v-for="jobTemplate in jobTemplates"
                   :key="jobTemplate.id"
@@ -105,7 +105,7 @@
             <p
                 class="mt-5 scrollable"
                 style="height: 150px !important;"
-                v-if="!job.jobTemplate.isArrayInput && settings.filter(item => item.selected).length > 0"
+                v-if="!job.jobTemplate.isArrayInput && settings.filter(item => item.selected).length > 1"
             >
             Этот тип задачи не поддерживает такое количество аргументов, будут созданы задачи:<br>
               <span v-for="(setting, index) in settings.filter(item => item.selected)" :key="index">
@@ -114,7 +114,7 @@
             </p>
           </MDBRow>
         </MDBCol>
-        <MDBCol col="8" class="shadow-5-soft" style="height: fit-content">
+        <MDBCol col="8" class="shadow-5-soft " style="height: fit-content">
           <MDBRow class="py-3">
             <MDBCol col="6" class="d-flex">
               <p class="align-self-center my-auto"><b>Название класса:</b> {{ job.jobTemplate.class }}</p>
@@ -220,7 +220,11 @@ export default {
     },
 
     createJob() {
-
+      this.job.externalData = this.settings.filter(item => item.selected);
+      axios.post('/api/job', {job: this.job}).then(r => {
+        r = r.data;
+        console.log(r);
+      })
     },
   },
   async beforeMount() {
@@ -240,4 +244,10 @@ export default {
   max-height: 390px;
 }
 
+.setting-active {
+  display: block;
+  z-index: 1;
+  border-radius: 2px;
+  box-shadow: inset 0 0 10px 0 #cfc5c5;
+}
 </style>

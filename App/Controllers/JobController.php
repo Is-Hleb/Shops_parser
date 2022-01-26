@@ -3,8 +3,10 @@
 namespace App\Controllers;
 
 use App\Models\Job;
+use App\Models\JobTemplate;
+use App\TasksQueue\TasksQueue;
 
-class JobsController extends Controller
+class JobController extends Controller
 {
     public function all() {
         $jobs = $this->entityManager->getRepository(Job::class)->findAll();
@@ -17,19 +19,15 @@ class JobsController extends Controller
     }
 
     public function create() {
-        $job = new Job();
         $postJob = $this->post['job'];
+        $jobTemplate =
+            $this->entityManager->getRepository(JobTemplate::class)
+                ->find($postJob['jobTemplate']['id']);
 
-        $job->setName($postJob['name']);
-        $job->setStatus($postJob['status']);
-        $job->setCommand($postJob['command']);
-        $job->setActive($postJob['active']);
-        $job->setExternalData($postJob['externalData']);
-        $job->setStarted($postJob['started']);
-        $job->setFinished($postJob['finished']);
+        $job = Job::toJobsQueue($postJob['name'], $postJob['externalData'], $jobTemplate);
 
-        $this->entityManager->persist($job);
-        $this->entityManager->flush();
+        \App\TasksQueue\Job::setJob($job);
+        TasksQueue::getInstance()->runLast();
 
         $this->success($this->post);
     }

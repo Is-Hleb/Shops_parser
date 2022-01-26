@@ -24,17 +24,17 @@ class Job {
     /**
      * @ORM\Column(type="integer", options={"default":2})
      */
-    protected string $status;
+    protected int $status = 2;
 
     /**
-     * @ORM\Column(type="string", nullable=false)
+     * @ORM\Column(type="text", nullable=true)
      */
     protected string $command;
 
     /**
      * @ORM\Column(type="boolean", options={"default":0})
      */
-    protected string $active;
+    protected bool $active = false;
 
     /**
      * @ORM\Column(type="json", name="external_data", nullable=false)
@@ -44,17 +44,23 @@ class Job {
     /**
      * @ORM\Column(type="datetime", name="started_at", nullable=true)
      */
-    protected string $started;
+    protected \DateTime $started;
 
     /**
      * @ORM\Column(type="datetime", name="finished_at", nullable=true)
      */
-    protected string $finished;
+    protected \DateTime $finished;
 
     /**
      * @ORM\OneToMany(targetEntity="Log", mappedBy="logs")
      */
-    private array $logs;
+    private mixed $logs;
+
+    /**
+     * One job has many content. This is the inverse side.
+     * @ORM\OneToMany(targetEntity="JobContent", mappedBy="job")
+     */
+    private mixed $contents;
 
     /**
      * @ORM\ManyToOne(targetEntity="JobTemplate", inversedBy="jobTemplate")
@@ -65,6 +71,30 @@ class Job {
     public function setTemplate(JobTemplate $jobTemplate) {
         $jobTemplate->addJob($this);
         $this->jobTemplate = $jobTemplate;
+    }
+
+    public function addContent(mixed $value) {
+        $this->contents[] = new JobContent($value, $this);
+    }
+
+    public function addLogs(array|string $logs, $type = 'error') {
+        if(is_array($logs)) {
+            foreach ($logs as $log) {
+                $log = new Log($this, $log, $type);
+                $this->logs[] = $log;
+            }
+        } else {
+            $log = new Log($this, $logs, $type);
+            $this->logs[] = $log;
+        }
+    }
+
+    public function getContents() : array{
+        $output = [];
+        foreach ($this->contents as $content) {
+            $output[] = $content->getContent();
+        }
+        return $output;
     }
 
     public function getJobTemplate() : JobTemplate {
@@ -157,45 +187,40 @@ class Job {
     /**
      * @return string
      */
-    public function getStarted(): string
+    public function getStarted(): \DateTime
     {
         return $this->started;
     }
 
     /**
-     * @param string $started
+     * @param \DateTime $started
      */
-    public function setStarted(string $started): void
+    public function setStarted(\DateTime $started): void
     {
         $this->started = $started;
     }
 
     /**
-     * @param string $finished
+     * @param \DateTime $finished
      */
-    public function setFinished(string $finished): void {
+    public function setFinished(\DateTime $finished): void {
         $this->finished = $finished;
     }
 
     /**
-     * @return string
+     * @return \DateTime
      */
-    public function getFinished(): string
+    public function getFinished(): \DateTime
     {
         return $this->finished;
     }
 
-    public function getToRead() {
-        return [
-            $this->id,
-            $this->name,
-            $this->status,
-            $this->command,
-            $this->active,
-            $this->externalData,
-            $this->started,
-            $this->finished
-        ];
+    public static function toJobsQueue(string $name, array $externalData, JobTemplate $jobTemplate) : self {
+        $job = new self();
+        $job->name = $name;
+        $job->setExternalData($externalData);
+        $job->setTemplate($jobTemplate);
+        return $job;
     }
 
 }

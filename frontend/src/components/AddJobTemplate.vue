@@ -48,8 +48,8 @@
       </p>
       <div>
         <MDBCheckbox
-            v-model="jobTemplate.isArrayInput"
             label="Создавать?"
+            @change="jobTemplate.isArrayInput = !jobTemplate.isArrayInput"
         />
       </div>
       <p>
@@ -87,7 +87,7 @@ export default {
         class: "",
         method: "",
         description: "",
-        isArrayInput: false,
+        isArrayInput: true,
       }
     }
   },

@@ -3,6 +3,10 @@
 namespace App\TasksQueue;
 
 // Прочитать код, разделить очередь от работы
+use App\Models\JobTemplate;
+use Doctrine\ORM\EntityManager;
+use App\Models\Job as JobModel;
+
 class Job
 {
     public const ENDED = 0;
@@ -10,171 +14,155 @@ class Job
     public const WAITING = 2;
     public const FAILED = 3;
 
-    protected array $content = [];
-    protected array $errors = [];
-    protected array $externalData = [];
+
+    protected TasksQueue $queue;
+    protected EntityManager $entityManager;
+    protected \App\Models\Job $dbInstance;
+    protected JobTemplate $template;
+
 
     /**
-     * @return array
+     * @throws \Doctrine\ORM\ORMException
+     * @throws \Doctrine\ORM\OptimisticLockException
      */
-    public function getExternalData(): array {
-        return $this->externalData;
+    public static function setJob(JobModel $job) : self {
+        global $entityManager;
+        $jobIns = new self();
+        $jobIns->entityManager = $entityManager;
+
+        $jobIns->dbInstance = $job;
+        $jobIns->template = $jobIns->dbInstance->getJobTemplate();
+
+        $jobIns->dbInstance->setStatus(self::WAITING);
+
+
+        $jobIns->entityManager->persist($job);
+        $jobIns->entityManager->flush();
+
+        return $jobIns;
     }
 
-    protected string $name;
-    protected string $class;
-    protected string $method;
-    protected string $logFilePath;
-    protected string $command;
-    protected string $startedAt = "";
-    protected string $stoppedAt = "";
+    public static function loadAll() : array{
+        global $entityManager;
+        $dbJobs = $entityManager->getRepository(\App\Models\Job::class)->findAll();
+        $output = [];
 
-    protected int $status;
-    protected bool $active = false;
-    protected TasksQueue $queue;
-
-    public function __construct($name, $class, $method, $externalData = []) {
-        $this->method = $method;
-        $this->class = $class;
-        $this->name = $name;
-        $this->status = self::WAITING;
-        $this->logFilePath = LOGS_FILES_PATH . "/jobs/$name.log";
-        $this->externalData = $externalData;
-
-        if(!is_dir(LOGS_FILES_PATH . '/jobs')) {
-            mkdir(LOGS_FILES_PATH . '/jobs');
+        foreach ($dbJobs as &$dbJob) {
+            $job = new self();
+            $job->dbInstance = $dbJob;
+            $job->template = $dbJob->getJobTemplate();
+            $job->entityManager = $entityManager;
+            $output[] = $job;
         }
+        return $output;
+    }
 
-        if(!file_exists($this->logFilePath)) {
-            fopen($this->logFilePath, 'w');
-        }
-
-        $command = "php Runner.php "
-            . str_replace('\\', '-', $this->class)
-            . " $this->method $this->name "
-            . "'" . json_encode($this->externalData) . "'"
-            ." > logs/jobs/$this->name.log &"
-        ;
-
-        if(PHP_OS == 'WINNT') {
-            $command = "START /B $command";
-            $command = str_replace('&', '', $command);
-        }
-
-        $this->command = $command;
-
+    public function updateDbInstance(): void {
+        $this->entityManager->flush($this->dbInstance);
     }
 
     /**
      * @return array
      */
     public function getContent(): array {
-        return $this->content;
+        return $this->dbInstance->getContents();
     }
 
-    /**
-     * @return string
-     */
-    public function getName(): string {
-        return $this->name;
+    public function getId() : int {
+        return $this->dbInstance->getId();
     }
 
     /**
      * @return string
      */
     public function getStartedAt(): string {
-        return $this->startedAt;
+        return $this->dbInstance->getStarted();
     }
 
     /**
      * @return string
      */
     public function getClass(): string {
-        return $this->class;
+        return $this->dbInstance->getJobTemplate()->getClass();
     }
 
     /**
      * @return string
      */
     public function getMethod(): string {
-        return $this->method;
+        return $this->template->getMethod();
     }
 
     /**
      * @return int|null
      */
     public function getStatus(): int|null {
-        return $this->status;
+        return $this->dbInstance->getStatus();
     }
 
     /**
      * @return bool
      */
     public function isActive(): bool {
-        return $this->active;
+        return $this->dbInstance->getActive();
     }
 
     public function execute() {
-        $this->status = self::RUNNING;
-        $this->active = true;
-        exec($this->command, $output, $code);
-        $this->startedAt = date(DATE_ATOM);
-        TasksQueue::getInstance()->updateData();
+
+        $command = "php Runner.php "
+            . str_replace('\\', '-', $this->template->getClass())
+            . " {$this->template->getMethod()} {$this->dbInstance->getId()} "
+            . "'" . json_encode($this->dbInstance->getExternalData()) . "'"
+            . " > logs/jobs/{$this->dbInstance->getName()}.log &";
+
+        if (PHP_OS == 'WINNT') {
+            $command = "START /B $command";
+            $command = str_replace('&', '', $command);
+        }
+
+        $this->dbInstance->setCommand($command);
+
+
+        exec($this->dbInstance->getCommand(), $output, $code);
+        $this->updateDbInstance();
     }
 
-    public static function fromArray(array $job) : Job{
-        $jobInst = new self($job['name'], $job['class'], $job['method']);
-        foreach ($job as $key => $value) {
-            $jobInst->$key = $value;
-        }
-        return $jobInst;
-    }
+    protected function runned() : void {
+        $this->dbInstance->setActive(true);
+        $this->dbInstance->setStatus(self::RUNNING);
+        $this->dbInstance->setStarted(new \DateTime());
 
-    public function toArray() : array{
-        $output['name'] = $this->name;
-        $output['class'] = $this->class;
-        $output['status'] = $this->status;
-        $output['method'] = $this->method;
-        $output['content'] = $this->content;
-        $output['command'] = $this->command;
-        $output['errors'] = $this->errors;
-        $output['active'] = $this->status == self::RUNNING;
-        $output['externalData'] = $this->externalData;
-        if($this->startedAt != "") {
-            $output['startedAt'] = $this->startedAt;
-        }
-        if($this->stoppedAt != "") {
-            $output['stoppedAt'] = $this->stoppedAt;
-        }
-
-        return $output;
+        $this->updateDbInstance();
     }
 
     public function putContent(string|int|float $content) {
-        $this->content[] = $content;
-        TasksQueue::getInstance()->updateData();
+        $this->dbInstance->addContent($content);
+        $this->updateDbInstance();
+    }
 
+    public function addLog(string|array $log, string $type = 'error') {
+        $this->dbInstance->addLogs($log, $type);
+        $this->updateDbInstance();
     }
 
     public function stop(mixed $content = [], mixed $errors = []) {
-        $this->status = self::ENDED;
 
-        if(is_array($content)) {
-            $this->content = array_merge($content, $this->content);
-        } else {
-            $this->content[] = $content;
+        if(!empty($content)) {
+            $this->dbInstance->addContent($content);
         }
 
-        if(is_array($errors)) {
-            $this->errors = array_merge($errors, $this->errors);
-        } else {
-            $this->errors[] = $errors;
+        if(!empty($errors)) {
+            $this->dbInstance->addLogs($errors);
         }
 
 
-        $this->active = false;
-        $this->stoppedAt = date(DATE_ATOM);
-        $this->status = empty($this->errors) ? self::ENDED : self::FAILED;
+        $this->dbInstance->setActive(false);
+        $this->dbInstance->setFinished(new \DateTime());
+        $this->dbInstance->setStatus(
+            empty($this->errors) ? self::ENDED : self::FAILED
+        );
+
+        $this->updateDbInstance();
 
         TasksQueue::getInstance()->popFront(); // Delete current job from queue
         TasksQueue::getInstance()->updateData();

@@ -11,9 +11,13 @@ class ECatalog extends ShopsParserController
 
     private function getCategory(): array
     {
-        $cache = $this->cacheGet('categories');
+        $cache = $this->cacheGet('categories'); // // TODO crutch category
+        $category = $this->currentJob->getExternalData()[0]['value'];
         $categories = $this->getSettings()['categories'];
         foreach ($categories as $categoryURL) {
+
+            $categoryURL = $category; // TODO crutch category
+
             if (!isset($cache[$categoryURL])) {
                 $this->dom->loadFromUrl($categoryURL);
                 // Название категории
@@ -97,14 +101,13 @@ class ECatalog extends ShopsParserController
             // Update products with saving all previous values
             $this->cacheSet('products', $products);
             $this->cacheUpdate();
-            $this->currentJob->putContent("end of uploading $curPage page");
-            if($limit-- < 0) return;
+            $this->currentJob->addLog("end of uploading $curPage page", 'info');
         }
     }
 
-    public function run($category)
+    public function run()
     {
-        $this->currentJob->addLog("START PROCESSING $category CATEGORY");
+        $this->currentJob->addLog("START PROCESSING CATEGORY");
         $this->parse();
     }
 }

@@ -9,7 +9,7 @@ use App\TasksQueue\TasksQueue;
 
 abstract class ShopsParserController
 {
-    abstract public function run($category);
+    abstract public function run();
     protected string $url = "";
     protected Job $currentJob;
     protected Dom $dom;

@@ -111,8 +111,7 @@ class Job
 
         $command = "php Runner.php "
             . str_replace('\\', '-', $this->template->getClass())
-            . " {$this->template->getMethod()} {$this->dbInstance->getId()} "
-            . "'" . json_encode($this->dbInstance->getExternalData()) . "'"
+            . " {$this->template->getMethod()} {$this->dbInstance->getId()}"
             . " > logs/jobs/{$this->dbInstance->getName()}.log &";
 
         if (PHP_OS == 'WINNT') {
@@ -143,6 +142,10 @@ class Job
     public function addLog(string|array $log, string $type = 'error') {
         $this->dbInstance->addLogs($log, $type);
         $this->updateDbInstance();
+    }
+
+    public function getExternalData() : array {
+        return $this->dbInstance->getExternalData();
     }
 
     public function stop(mixed $content = [], mixed $errors = []) {

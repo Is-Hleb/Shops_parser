@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Models;
 
 use Doctrine\ORM\Mapping as ORM;
@@ -7,7 +8,8 @@ use Doctrine\ORM\Mapping as ORM;
  * @ORM\Entity
  * @ORM\Table(name="logs", options={"collate"="utf8_general_ci"})
  */
-class Log {
+class Log
+{
 
     /**
      * @ORM\Id
@@ -39,6 +41,14 @@ class Log {
         $this->job = $job;
         global $entityManager;
         $entityManager->persist($this);
+    }
+
+    public function returnToRead() : array {
+        return [
+            'id' => $this->id,
+            'value' => $this->value,
+            'type' => $this->type
+        ];
     }
 
 }

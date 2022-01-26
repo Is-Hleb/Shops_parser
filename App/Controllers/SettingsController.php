@@ -24,6 +24,7 @@ class SettingsController extends Controller
     }
 
     public function all() {
+
         $settings = $this->entityManager->getRepository(Setting::class)->findAll();
         $outputSettings = [];
         foreach ($settings as $setting) {

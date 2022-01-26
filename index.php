@@ -46,7 +46,8 @@ const routes = [
         'settings/collections' => [\App\Controllers\SettingsController::class, 'allCollections'],
 
         // Jobs Urls
-        'job/templates' => [\App\Controllers\JobTemplateController::class, 'all']
+        'job/templates' => [\App\Controllers\JobTemplateController::class, 'all'],
+        'jobs' => [\App\Controllers\JobController::class, 'all']
     ],
     "POST" => [
         'setting' => [\App\Controllers\SettingsController::class, 'create'],

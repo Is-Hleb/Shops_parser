@@ -5,7 +5,7 @@ use Doctrine\ORM\Mapping as ORM;
 
 /**
  * @ORM\Entity
- * @ORM\Table(name="jobs_templates")
+ * @ORM\Table(name="jobs_templates", options={"collate"="utf8_general_ci"})
  */
 class JobTemplate {
 
@@ -13,23 +13,71 @@ class JobTemplate {
      * @ORM\Id
      * @ORM\Column(type="integer")
      * @ORM\GeneratedValue
+     *
      */
     protected int $id;
 
     /**
-     * @ORM\Column(type="string")
+     * @ORM\Column(type="string", nullable=false, unique=true)
      */
     protected string $name;
 
     /**
-     * @ORM\Column(type="string")
+     * @ORM\Column(type="string", nullable=false)
      */
     protected string $class;
 
     /**
-     * @ORM\Column(type="string")
+     * @ORM\Column(type="string", nullable=false)
      */
     protected string $method;
+
+    /**
+     * @return bool
+     */
+    public function getIsArrayInput(): bool {
+        return $this->is_array_input;
+    }
+
+    /**
+     * @param bool $is_array_input
+     */
+    public function setIsArrayInput(bool $is_array_input): void {
+        $this->is_array_input = $is_array_input;
+    }
+
+    /**
+     * @return string
+     */
+    public function getDescription(): string {
+        return $this->description;
+    }
+
+    /**
+     * @param string $description
+     */
+    public function setDescription(string $description): void {
+        $this->description = $description;
+    }
+
+    /**
+     * @ORM\Column(type="boolean", nullable=true)
+     */
+    protected bool $is_array_input;
+
+    /**
+     * @ORM\Column(type="text", nullable=false)
+     */
+    protected string $description;
+
+    /**
+     * @ORM\OneToMany(targetEntity="Job", mappedBy="jobs")
+     */
+    private $jobs;
+
+    public function addJob(Job $job) {
+        $this->jobs[] = $job;
+    }
 
     /**
      * @return string
@@ -86,11 +134,5 @@ class JobTemplate {
     {
         return $this->id;
     }
-
-    /**
-     * One product has many features. This is the inverse side.
-     * @ORM\OneToMany(targetEntity="Job", mappedBy="jobs")
-     */
-    private $jobs;
 
 }

@@ -2,6 +2,8 @@
 
 namespace App\TasksQueue;
 
+use Doctrine\ORM\EntityManager;
+
 class TasksQueue
 {
 
@@ -9,46 +11,29 @@ class TasksQueue
 
     private array $queueJobs;
     private array $jobs;
-    private string $queueFile;
+    private EntityManager $entityManager;
 
     protected function __clone() {
     }
 
     protected function __construct() {
-        $this->queueFile = __DIR__ . '/queue.json';
-        $this->jobs = [];
-        $this->queueJobs = [];
+        global $entityManager;
+        $this->entityManager = $entityManager;
 
-        if (!file_exists($this->queueFile)) {
-            fopen($this->queueFile, 'w');
-        }
-        $json = json_decode(file_get_contents($this->queueFile, 'w'), true) ?? [];
-        if (!empty($json)) {
-            foreach ($json as $jobArray) {
-                $this->jobs[] = Job::fromArray($jobArray);
-            }
-            if (!empty($this->jobs)) {
-                foreach ($this->jobs as $job) {
-                    if ($job->getStatus() == Job::WAITING) {
-                        $this->queueJobs[] = $job;
-                    }
-                }
+
+        $this->jobs = Job::loadAll();
+        foreach ($this->jobs as &$job) {
+            if($job->getStatus() === Job::WAITING) {
+                $this->queueJobs[] = $job;
             }
         }
-    }
 
-    // TODO replace as saving jobs into DB
-    public function __destruct() {
-        $this->updateData();
-    }
-
-    public function addJob(Job $job) {
-        $this->queueJobs[count($this->queueJobs)] = $job;
-        $this->jobs[] = $job;
+        $this->runLast();
     }
 
     public function runLast() {
-        if(!isset($this->queueJobs[0])) {
+        $this->updateData();
+        if (!isset($this->queueJobs[0])) {
             return;
         }
         if (!$this->queueJobs[0]->isActive()) {
@@ -56,7 +41,7 @@ class TasksQueue
         }
     }
 
-    public function popFront() : void {
+    public function popFront(): void {
         array_unshift($this->queueJobs);
     }
 
@@ -65,6 +50,7 @@ class TasksQueue
     }
 
     public function getLastActive(): Job|null {
+        $this->updateData();
         foreach ($this->jobs as $job) {
             if ($job->isActive()) {
                 return $job;
@@ -76,17 +62,19 @@ class TasksQueue
     }
 
     public function someJobIsRunning(): bool {
+        $this->updateData();
         foreach ($this->jobs as $job) {
-            if($job->isActive()) {
+            if ($job->isActive()) {
                 return true;
             }
         }
         return false;
     }
 
-    public function getJobByName(string $name): Job|null {
+    public function getJobById(string $id): Job|null {
+        $this->updateData();
         foreach ($this->jobs as &$job) {
-            if ($job->getName() == $name) {
+            if ($job->getId() == $id) {
                 return $job;
             }
         }
@@ -100,18 +88,18 @@ class TasksQueue
         throw new \Exception("Cannot unserialize a Queue twice.");
     }
 
-    public function jobIssetAndRunning($name): bool {
-        $job = $this->getJobByName($name);
+    public function jobIssetAndRunning($id): bool {
+        $job = $this->getJobById($id);
         return $job != null;
     }
 
-    public function updateData() : void{
-        $output = [];
-        foreach ($this->jobs as $job) {
-            $output[] = $job->toArray();
+    public function updateData(): void {
+        $this->jobs = Job::loadAll();
+        foreach ($this->jobs as &$job) {
+            if($job->getStatus() === Job::WAITING) {
+                $this->queueJobs[] = $job;
+            }
         }
-        $output = json_encode($output);
-        file_put_contents($this->queueFile, $output);
     }
 
     public static function getInstance(): TasksQueue {

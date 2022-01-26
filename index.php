@@ -43,12 +43,19 @@ const routes = [
 //    'output' => [\App\BackgroundViewer::class, 'getOutput']
     "GET" => [
         'settings' => [\App\Controllers\SettingsController::class, 'all'],
-        'settings/collections' => [\App\Controllers\SettingsController::class, 'allCollections']
+        'settings/collections' => [\App\Controllers\SettingsController::class, 'allCollections'],
+
+        // Jobs Urls
+        'job/templates' => [\App\Controllers\JobTemplateController::class, 'all']
     ],
     "POST" => [
         'setting' => [\App\Controllers\SettingsController::class, 'create'],
         'setting/delete' => [\App\Controllers\SettingsController::class, 'delete'],
-        'setting/edit' => [\App\Controllers\SettingsController::class, 'edit']
+        'setting/edit' => [\App\Controllers\SettingsController::class, 'edit'],
+
+        // Jobs Urls
+        'job/template' => [\App\Controllers\JobTemplateController::class, 'create'],
+        'job' => [\App\Controllers\JobController::class, 'create'],
     ]
 ];
 

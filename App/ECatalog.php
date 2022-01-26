@@ -102,9 +102,9 @@ class ECatalog extends ShopsParserController
         }
     }
 
-    public function run($categories)
+    public function run($category)
     {
-        $this->currentJob->putContent("START PROCESSING $categories CATEGORY");
+        $this->currentJob->addLog("START PROCESSING $category CATEGORY");
         $this->parse();
     }
 }

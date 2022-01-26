@@ -5,7 +5,7 @@ use Doctrine\ORM\Mapping as ORM;
 
 /**
  * @ORM\Entity
- * @ORM\Table(name="settings")
+ * @ORM\Table(name="settings", options={"collate"="utf8_general_ci"})
  */
 class Setting {
 

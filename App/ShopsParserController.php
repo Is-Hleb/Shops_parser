@@ -17,7 +17,7 @@ abstract class ShopsParserController
     private mixed $content;
 
 
-    public function __construct($jobName = 'ECatalog') {
+    public function __construct() {
         $this->dom = new Dom;
         $array = explode('\\', static::class);
         $this->shopName = end($array);
@@ -33,8 +33,8 @@ abstract class ShopsParserController
             $this->content = json_decode(file_get_contents($fName), JSON_OBJECT_AS_ARRAY);
         }
         $taskQueue = TasksQueue::getInstance();
-        $this->currentJob = $taskQueue->getJobByName($jobName);
-        $this->currentJob->putContent($this->shopName . ' Парсинг запущен');
+        $this->currentJob = $taskQueue->getJobById(JOB_ID);
+        $this->currentJob->addLog($this->shopName . ' Парсинг запущен', 'info');
     }
 
     public function cacheHas($key) : bool {
@@ -78,10 +78,5 @@ abstract class ShopsParserController
         file_put_contents($fName, json_encode($this->content));
     }
 
-    public function getLink(string $url, string $name = "Page") : string {
-        return <<<LINK
-            <a href="$url">$name</a>
-        LINK;
-    }
 
 }

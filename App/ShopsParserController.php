@@ -32,8 +32,8 @@ abstract class ShopsParserController
 
             $this->content = json_decode(file_get_contents($fName), JSON_OBJECT_AS_ARRAY);
         }
-        $taskQueue = TasksQueue::getInstance();
-        $this->currentJob = $taskQueue->getJobById(JOB_ID);
+
+        $this->currentJob = TasksQueue::getInstance()->getJobById(JOB_ID);
         $this->currentJob->addLog($this->shopName . ' Парсинг запущен', 'info');
     }
 

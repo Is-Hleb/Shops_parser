@@ -14,11 +14,9 @@ class Job
     public const WAITING = 2;
     public const FAILED = 3;
 
-
-    protected TasksQueue $queue;
-    protected EntityManager $entityManager;
-    protected \App\Models\Job $dbInstance;
-    protected JobTemplate $template;
+    private EntityManager $entityManager;
+    private \App\Models\Job $dbInstance;
+    private JobTemplate $template;
 
 
     /**
@@ -34,7 +32,7 @@ class Job
         $jobIns->template = $jobIns->dbInstance->getJobTemplate();
 
         $jobIns->dbInstance->setStatus(self::WAITING);
-
+        $jobIns->dbInstance->setAddedAt(new \DateTime('NOW'));
 
         $jobIns->entityManager->persist($job);
         $jobIns->entityManager->flush();
@@ -108,29 +106,11 @@ class Job
     }
 
     public function execute() {
-
-        $command = "php Runner.php "
+        $command = "php runner.php "
             . str_replace('\\', '-', $this->template->getClass())
-            . " {$this->template->getMethod()} {$this->dbInstance->getId()}"
-            . " > logs/jobs/{$this->dbInstance->getName()}.log &";
-
-        if (PHP_OS == 'WINNT') {
-            $command = "START /B $command";
-            $command = str_replace('&', '', $command);
-        }
+            . " {$this->template->getMethod()} {$this->dbInstance->getId()}";
 
         $this->dbInstance->setCommand($command);
-
-
-        exec($this->dbInstance->getCommand(), $output, $code);
-        $this->updateDbInstance();
-    }
-
-    protected function runned() : void {
-        $this->dbInstance->setActive(true);
-        $this->dbInstance->setStatus(self::RUNNING);
-        $this->dbInstance->setStarted(new \DateTime());
-
         $this->updateDbInstance();
     }
 
@@ -148,7 +128,15 @@ class Job
         return $this->dbInstance->getExternalData();
     }
 
-    public function stop(mixed $content = [], mixed $errors = []) {
+    protected function runned() : void {
+        $this->dbInstance->setActive(true);
+        $this->dbInstance->setStatus(self::RUNNING);
+        $this->dbInstance->setStarted(new \DateTime('NOW'));
+
+        $this->updateDbInstance();
+    }
+
+    protected function stop(mixed $content = [], mixed $errors = []) {
 
         if(!empty($content)) {
             $this->dbInstance->addContent($content);
@@ -160,7 +148,7 @@ class Job
 
 
         $this->dbInstance->setActive(false);
-        $this->dbInstance->setFinished(new \DateTime());
+        $this->dbInstance->setFinished(new \DateTime('NOW'));
         $this->dbInstance->setStatus(
             empty($this->errors) ? self::ENDED : self::FAILED
         );

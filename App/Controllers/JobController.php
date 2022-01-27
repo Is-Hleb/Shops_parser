@@ -4,6 +4,7 @@ namespace App\Controllers;
 
 use App\Models\Job;
 use App\Models\JobTemplate;
+use App\TasksQueue\JobRunner;
 use App\TasksQueue\TasksQueue;
 
 class JobController extends Controller
@@ -20,15 +21,7 @@ class JobController extends Controller
 
     public function create() {
         $postJob = $this->post['job'];
-        $jobTemplate =
-            $this->entityManager->getRepository(JobTemplate::class)
-                ->find($postJob['jobTemplate']['id']);
-
-        $job = Job::toJobsQueue($postJob['name'], $postJob['externalData'], $jobTemplate);
-
-        \App\TasksQueue\Job::setJob($job);
-        TasksQueue::getInstance()->runLast();
-
+        JobRunner::run($postJob);
         $this->success($this->post);
     }
 }

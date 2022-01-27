@@ -11,15 +11,11 @@ class TasksQueue
 
     private array $queueJobs;
     private array $jobs;
-    private EntityManager $entityManager;
 
     protected function __clone() {
     }
 
     protected function __construct() {
-        global $entityManager;
-        $this->entityManager = $entityManager;
-
 
         $this->jobs = Job::loadAll();
         foreach ($this->jobs as &$job) {
@@ -28,21 +24,11 @@ class TasksQueue
             }
         }
 
-        $this->runLast();
     }
 
-    public function runLast() {
-        $this->updateData();
-        if (!isset($this->queueJobs[0])) {
-            return;
-        }
-        if (!$this->queueJobs[0]->isActive()) {
-            $this->queueJobs[0]->execute();
-        }
-    }
 
     public function popFront(): void {
-        array_unshift($this->queueJobs);
+        $this->updateData();
     }
 
     public function getLast(): Job {

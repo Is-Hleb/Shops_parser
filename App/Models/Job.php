@@ -52,6 +52,11 @@ class Job {
     protected \DateTime $finished;
 
     /**
+     * @ORM\Column(type="datetime", name="added_at", nullable=true)
+     */
+    protected \DateTime $addedAt;
+
+    /**
      * @ORM\OneToMany(targetEntity="Log", mappedBy="logs")
      */
     private mixed $logs;
@@ -118,17 +123,17 @@ class Job {
     }
 
     /**
-     * @return string
+     * @return boolean
      */
-    public function getActive(): string
+    public function getActive(): bool
     {
         return $this->active;
     }
 
     /**
-     * @param string $active
+     * @param boolean $active
      */
-    public function setActive(string $active): void
+    public function setActive(bool $active): void
     {
         $this->active = $active;
     }
@@ -190,6 +195,20 @@ class Job {
     public function getStarted(): \DateTime
     {
         return $this->started;
+    }
+
+    /**
+     * @return \DateTime
+     */
+    public function getAddedAt(): \DateTime {
+        return $this->addedAt;
+    }
+
+    /**
+     * @param \DateTime $addedAt
+     */
+    public function setAddedAt(\DateTime $addedAt): void {
+        $this->addedAt = $addedAt;
     }
 
     /**

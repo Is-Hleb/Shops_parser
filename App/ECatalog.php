@@ -13,6 +13,7 @@ class ECatalog extends ShopsParserController
     {
         $cache = $this->cacheGet('categories'); // // TODO crutch category
         $category = $this->currentJob->getExternalData()[0]['value'];
+        $this->currentJob->addLog($category, 'info');
         $categories = $this->getSettings()['categories'];
         foreach ($categories as $categoryURL) {
 
@@ -96,6 +97,7 @@ class ECatalog extends ShopsParserController
                     'name' => $productName,
                     'link' => $productsLinkToInsert
                 ];
+                // if($limit-- < 0) break;
             }
 
             // Update products with saving all previous values

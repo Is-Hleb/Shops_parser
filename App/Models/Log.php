@@ -24,7 +24,7 @@ class Log
     protected string $type;
 
     /**
-     * @ORM\Column(type="string")
+     * @ORM\Column(type="text")
      */
     protected string $value;
 

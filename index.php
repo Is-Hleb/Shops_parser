@@ -8,7 +8,7 @@ define("CURRENT_ROUTE", empty($_GET['route']) ? '/' : $_GET['route']);
 define("EXPLODED_ROUTES", explode('/', CURRENT_ROUTE));
 define("REQUEST_METHOD", $_SERVER['REQUEST_METHOD']);
 
-require_once 'bootstrap.php';
+require_once __DIR__ . '/bootstrap.php';
 require_once 'functions.php';
 require_once 'vendor/autoload.php';
 

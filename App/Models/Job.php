@@ -252,4 +252,12 @@ class Job {
         ];
     }
 
+    public function getJobToRead() {
+        return [
+            'id' => $this->id,
+            'name' => $this->name,
+            'status' => $this->status,
+        ];
+    }
+
 }

@@ -24,10 +24,25 @@ class JobController extends Controller
         $this->success($data);
     }
 
+    public function getJobs() {
+        $jobs = $this->entityManager->getRepository(Job::class)->findAll();
+        $output = [];
+        foreach ($jobs as $job) {
+            $output[] = $job->getJobToRead();
+        }
+        d($output);
+    }
+
     public function getContent() {
         $jobContentId = $this->post['jobContent']['id'];
         $jobContent = $this->entityManager->getRepository(JobContent::class)->find($jobContentId)->getContent();
         $this->success($jobContent);
+    }
+
+    public function getLog() {
+        $logId = $this->post['log']['id'];
+        $log = $this->entityManager->getRepository(Log::class)->find($logId)->returnToRead();
+        $this->success($log);
     }
 
     public function create() {

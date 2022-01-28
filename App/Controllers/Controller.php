@@ -1,10 +1,12 @@
 <?php
+
 namespace App\Controllers;
 
 use Doctrine\ORM\EntityManager;
 use JetBrains\PhpStorm\NoReturn;
 
-abstract class Controller {
+abstract class Controller
+{
     protected array $post;
     protected array $get;
     protected EntityManager $entityManager;
@@ -31,13 +33,26 @@ abstract class Controller {
     }
 
     #[NoReturn] public function error($errors = []) {
-        if(is_string($errors)) {
+        if (is_string($errors)) {
             $errors = [$errors];
         }
         $output['data'] = $errors;
         $output['code'] = 'error';
         header('Content-Type: application/json');
         echo json_encode($output);
+        exit();
+    }
+
+    #[NoReturn] public function downloadJson(string $json, string $fileName = null) : void{
+
+        if(!$fileName) {
+            $file_name = date('Y-m-d h:m') . ".json";
+        }
+
+        header("Content-Disposition: attachment; filename=\"$file_name\"");
+        header("Content-Type: application/json; charset=utf-8");
+
+        echo $json;
         exit();
     }
 }

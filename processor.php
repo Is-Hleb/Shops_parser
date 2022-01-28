@@ -8,9 +8,10 @@ spl_autoload_register(function ($class) {
 });
 
 while (true) {
+    global $entityManager;
 
     $jobs = $entityManager->getRepository(\App\Models\Job::class)->findBy(
-        ['status' => \App\TasksQueue\Job::WAITING],
+        ['status' => 2],
     );
 
     if (empty($jobs)) {
@@ -18,7 +19,7 @@ while (true) {
     }
 
     $activeJob = $entityManager->getRepository(\App\Models\Job::class)->findBy(
-        ['status' => \App\TasksQueue\Job::RUNNING]
+        ['status' => 1]
     );
 
     $must_run_next = true;
@@ -32,10 +33,7 @@ while (true) {
         $output = null;
         $result = null;
 
-        $job->setStarted(new DateTime('NOW'));
-        $job->setStatus(\App\TasksQueue\Job::RUNNING);
-        $job->setActive(true);
-        $entityManager->flush($job);
+        $job->setActive();
 
         exec($job->getCommand(), $output, $result);
 
@@ -45,16 +43,7 @@ while (true) {
 
         file_put_contents('logs/jobs/' . $job->getName() . '.log', $output . "\nResult={$result}");
 
-        if ($result == 0) {
-            $job->setStatus(\App\TasksQueue\Job::ENDED);
-        } else {
-            $job->setStatus(\App\TasksQueue\Job::FAILED);
-        }
-
-        $job->setActive(false);
-        $job->addLogs($output);
-        $job->setFinished(new DateTime('NOW'));
-        $entityManager->flush($job);
+        $job->setDisabled($result);
     }
 
     sleep(3);

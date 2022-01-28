@@ -1,10 +1,11 @@
 <template>
   <MDBAccordion flush>
     <MDBAccordionItem
-        headerTitle="Job 1 ECatalog"
-        collapseId="1"
+        v-for="job in jobs" :key="job.id"
+        :headerTitle="job.name"
+        :collapseId="job.id"
     >
-      <Log id="1" />
+      <Log :id="job.id" />
     </MDBAccordionItem>
   </MDBAccordion>
 </template>
@@ -18,6 +19,7 @@ import {
   from
       "mdb-vue-ui-kit";
 import Log from "@/components/Log";
+const axios = require('axios');
 
 export default {
   name: "Jobs",
@@ -25,7 +27,17 @@ export default {
     Log,
     MDBAccordion,
     MDBAccordionItem,
-
   },
+  data() {
+    return {
+      jobs: []
+    }
+  },
+  beforeMount() {
+    axios.get('/api/jobs').then(r => {
+      r = r.data;
+      this.jobs = r.data.jobs;
+    });
+  }
 };
 </script>

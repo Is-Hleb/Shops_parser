@@ -19,6 +19,7 @@ abstract class JobRunner
     public static function run(array $jobPost) {
         global $entityManager;
         $template = $entityManager->getReference(JobTemplate::class, $jobPost['jobTemplate']['id']);
+
         if ($template->getIsArrayInput() || count($jobPost['externalData']) === 1) {
             self::runOne($jobPost['name'], $jobPost['externalData'], $template);
         } else {
@@ -33,7 +34,7 @@ abstract class JobRunner
         global $entityManager;
 
         $jobs = $entityManager->getRepository(Job::class)->findBy(
-            ['status' => \App\TasksQueue\Job::RUNNING]
+            ['status' => 0]
         );
 
         if (empty($jobs)) {
@@ -45,9 +46,7 @@ abstract class JobRunner
             exec($command);
         }
 
-        $job = Job::toJobsQueue($jobName, $externalData, $jobTemplate);
-        $job = \App\TasksQueue\Job::setJob($job);
-        $job->execute();
+        Job::addToQueue($jobName, $externalData, $jobTemplate);
     }
 
 

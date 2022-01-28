@@ -1,11 +1,10 @@
 <?php
 
-namespace App;
+namespace Jobs\Parsers;
 
-
-use App\TasksQueue\Job;
+use App\Models\Job;
 use PHPHtmlParser\Dom;
-use App\TasksQueue\TasksQueue;
+
 
 abstract class ShopsParserController
 {
@@ -32,9 +31,8 @@ abstract class ShopsParserController
 
             $this->content = json_decode(file_get_contents($fName), JSON_OBJECT_AS_ARRAY);
         }
-
-        $this->currentJob = TasksQueue::getInstance()->getJobById(JOB_ID);
-        $this->currentJob->addLog($this->shopName . ' Парсинг запущен', 'info');
+        $this->currentJob = Job::find(JOB_ID);
+        $this->currentJob->addLogs($this->shopName . ' Парсинг запущен', 'info');
     }
 
     public function cacheHas($key) : bool {

@@ -80,6 +80,14 @@ class Job {
 
     public function addContent(mixed $value) {
         $this->contents[] = new JobContent($value, $this);
+
+        global $entityManager;
+        $entityManager->flush($this);
+    }
+
+    public static function find($id) {
+        global $entityManager;
+        return $entityManager->getReference(self::class, $id);
     }
 
     public function addLogs(array|string $logs, $type = 'error') {
@@ -92,6 +100,9 @@ class Job {
             $log = new Log($this, $logs, $type);
             $this->logs[] = $log;
         }
+
+        global $entityManager;
+        $entityManager->flush($this);
     }
 
     public function getContents() : array{
@@ -102,144 +113,76 @@ class Job {
         return $output;
     }
 
-    public function getJobTemplate() : JobTemplate {
-        return $this->jobTemplate;
-    }
-
-    /**
-     * @return string
-     */
-    public function getCommand(): string
-    {
-        return $this->command;
-    }
-
-    /**
-     * @param string $command
-     */
-    public function setCommand(string $command): void
-    {
-        $this->command = $command;
-    }
-
-    /**
-     * @return boolean
-     */
-    public function getActive(): bool
-    {
-        return $this->active;
-    }
-
-    /**
-     * @param boolean $active
-     */
-    public function setActive(bool $active): void
-    {
-        $this->active = $active;
-    }
-
-    /**
-     * @return array
-     */
-    public function getExternalData(): array
-    {
-        return json_decode($this->externalData, true) ?? [];
-    }
-
-    /**
-     * @param array $externalData
-     */
-    public function setExternalData(array $externalData): void
-    {
+    public function setExternalData($externalData) : void {
         $this->externalData = json_encode($externalData);
     }
 
-    /**
-     * @return string
-     */
-    public function getName(): string {
-        return $this->name;
+    public function getExternalData() : array {
+        $json = json_decode($this->externalData, true) ?? [];
+
+        if(empty($json)) {
+            return [];
+        }
+
+        $output = [];
+        foreach ($json as $item) {
+            $output[$item['name']] = $item['value'];
+        }
+        return $output;
     }
 
-    /**
-     * @param string $name
-     */
-    public function setName(string $name): void {
-        $this->name = $name;
+    public static function addToQueue(string $name, array $externalData, JobTemplate $jobTemplate): Job {
+        $jobIns = new self();
+
+        $jobIns->name = $name;
+        $jobIns->active = false;
+        $jobIns->status = 2;
+        $jobIns->addedAt = new \DateTime('NOW');
+
+        $jobIns->setExternalData($externalData);
+        $jobIns->setTemplate($jobTemplate);
+
+        global $entityManager;
+        $entityManager->persist($jobIns);
+        $entityManager->flush();
+
+        $command = "php runner.php "
+            . str_replace('\\', '-', $jobIns->jobTemplate->getClass())
+            . " {$jobIns->jobTemplate->getMethod()} {$jobIns->id}";
+
+        $jobIns->command = $command;
+        $entityManager->flush($jobIns);
+
+        return $jobIns;
     }
 
-    /**
-     * @return integer
-     */
-    public function getStatus(): int {
-        return $this->status;
+    public function setActive() {
+        $this->active = true;
+        $this->status = 1;
+        $this->started = new \DateTime('NOW');
+
+        global $entityManager;
+        $entityManager->flush($this);
     }
 
-    /**
-     * @param int $status
-     */
-    public function setStatus(int $status): void {
+    public function setDisabled($status = 0) {
+        $this->active = false;
         $this->status = $status;
+        $this->finished = new \DateTime('NOW');
+
+        global $entityManager;
+        $entityManager->flush($this);
     }
 
-    /**
-     * @return int
-     */
-    public function getId(): int {
+    public function getId() : int {
         return $this->id;
     }
 
-    /**
-     * @return string
-     */
-    public function getStarted(): \DateTime
-    {
-        return $this->started;
+    public function getCommand() : string {
+        return $this->command;
     }
 
-    /**
-     * @return \DateTime
-     */
-    public function getAddedAt(): \DateTime {
-        return $this->addedAt;
+    public function getName() : string {
+        return $this->name;
     }
-
-    /**
-     * @param \DateTime $addedAt
-     */
-    public function setAddedAt(\DateTime $addedAt): void {
-        $this->addedAt = $addedAt;
-    }
-
-    /**
-     * @param \DateTime $started
-     */
-    public function setStarted(\DateTime $started): void
-    {
-        $this->started = $started;
-    }
-
-    /**
-     * @param \DateTime $finished
-     */
-    public function setFinished(\DateTime $finished): void {
-        $this->finished = $finished;
-    }
-
-    /**
-     * @return \DateTime
-     */
-    public function getFinished(): \DateTime
-    {
-        return $this->finished;
-    }
-
-    public static function toJobsQueue(string $name, array $externalData, JobTemplate $jobTemplate) : self {
-        $job = new self();
-        $job->name = $name;
-        $job->setExternalData($externalData);
-        $job->setTemplate($jobTemplate);
-        return $job;
-    }
-
 }

@@ -1,7 +1,5 @@
 <?php
 
-use \App\TasksQueue\TasksQueue;
-
 define("JOB_ID", $argv[3]);
 const CACHE_ON = true;
 const LOGS_FILES_PATH = __DIR__ . '/logs/jobs';
@@ -16,23 +14,16 @@ spl_autoload_register(function ($class) {
 });
 
 
-class runner extends \App\TasksQueue\Job
+class runner
 {
     private object $job;
 
     public function __construct(string $class, string $method) {
-        try {
-            $class = str_replace("-", "\\", $class);
 
-            $this->job = new $class(JOB_ID);
-            $this->job->$method();
-        } catch (Exception $exception) {
-            TasksQueue::getInstance()->getJobById(JOB_ID)->stop([], $exception->getMessage());
-        }
-    }
+        $class = str_replace("-", "\\", $class);
+        $this->job = new $class(JOB_ID);
+        $this->job->$method();
 
-    public function __destruct() {
-        TasksQueue::getInstance()->popFront();
     }
 }
 

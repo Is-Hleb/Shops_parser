@@ -19,6 +19,9 @@
             <MDBListGroupItem class="bg-primary text-white" action>info log</MDBListGroupItem>
             <MDBListGroupItem action>default log</MDBListGroupItem>
             <MDBListGroupItem class="bg-warning" action>Error log</MDBListGroupItem>
+            <MDBListGroupItem class="bg-primary text-white" action>info log</MDBListGroupItem>
+            <MDBListGroupItem action>default log</MDBListGroupItem>
+            <MDBListGroupItem class="bg-warning" action>Error log</MDBListGroupItem>
           </MDBListGroup>
         </MDBCol>
       </MDBRow>

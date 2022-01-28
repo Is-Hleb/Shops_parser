@@ -1,57 +1,48 @@
 <?php
 
-namespace App;
-
-use Http\Client\Exception;
-use PHPHtmlParser\Dom;
+namespace Jobs\Parsers;
 
 class ECatalog extends ShopsParserController
 {
     protected string $url = "https://www.e-katalog.ru";
 
-    private function getCategory(): array
-    {
-        $cache = $this->cacheGet('categories'); // // TODO crutch category
-        $category = $this->currentJob->getExternalData()[0]['value'];
-        $this->currentJob->addLog($category, 'info');
-        $categories = $this->getSettings()['categories'];
-        foreach ($categories as $categoryURL) {
+    private function getCategory(): array {
 
-            $categoryURL = $category; // TODO crutch category
+        // Take category from job data
 
-            if (!isset($cache[$categoryURL])) {
-                $this->dom->loadFromUrl($categoryURL);
-                // Название категории
-                $title = $this->dom->find('.page-title')[0]->find('div')->text;
-                // Ссылка на все товары категории
-                $link = $this->dom->find('.all-link')[0]->find('a')->getAttribute('href');
-                $link = $this->url . $link;
-                $output[$categoryURL] = [
-                    'category' => trim($title),
-                    'url' => $link,
-                ];
+        $category = $this->currentJob->getExternalData()['Category'];
 
-                $this->cacheSet('categories', array_merge($output, !$cache ? [] : $cache));
-                $this->cacheUpdate();
+        // add Log with input category
+        $this->currentJob->addLogs($category, 'info');
 
-                // current category
-                // dd($output);
-                return array_merge([
-                    'categories' => $output
-                ], [
-                    'productsLink' => $link,
-                    'categoryLink' => $categoryURL
-                ]);
-            }
-        }
+
+        $this->dom->loadFromUrl($category);
+        // Название категории
+        $title = $this->dom->find('.page-title')[0]->find('div')->text;
+        // Ссылка на все товары категории
+        $link = $this->dom->find('.all-link')[0]->find('a')->getAttribute('href');
+        $link = $this->url . $link;
+
+        $output[$category] = [
+            'category' => trim($title),
+            'url' => $link,
+        ];
+
+        return array_merge([
+            'categories' => $output
+        ], [
+            'productsLink' => $link,
+            'categoryLink' => $category
+        ]);
+
     }
 
-    private function parse() : void {
-        // return;
+    private function parse(): void {
         $loadedCategory = $this->getCategory();
+
+
         $productsLink = $loadedCategory['productsLink'];
         $categoryLink = $loadedCategory['categoryLink'];
-        $allCategories = $this->cacheGet('categories');
 
         // Первая страница всех товаров категории
         $this->dom->loadFromUrl($productsLink);
@@ -61,12 +52,12 @@ class ECatalog extends ShopsParserController
         $pagesCount = $pagesCount[sizeof($pagesCount) - 1];
         $pagesCount = $pagesCount->text;
 
-        // Массив продуктов
-        $products = $this->cacheGet('products');
         // Получаем количество все страниц
         $pagesCount = intval($pagesCount);
+        $products = [];
+
         //ссылки на страницы. ссылки на продукты каждой страницы
-        $limit = 4;
+
         // for по всем страницам
         for ($curPage = 1; $curPage < $pagesCount; $curPage++) {
 
@@ -76,7 +67,9 @@ class ECatalog extends ShopsParserController
             $this->dom->loadStr($string); // Создаём дом из строки
             $links = $this->dom->find('.model-short-title.no-u'); // Берём заголовки
 
-            if(count($links) <= 1) {
+            // outputArray
+
+            if (count($links) <= 1) {
                 break;
             }
 
@@ -92,24 +85,23 @@ class ECatalog extends ShopsParserController
                 // Link to product properties
                 $productsLinkToInsert = "https://www.e-katalog.ru/ek-item.php?resolved_name_={$name}&view_=tbl";
 
-                $category = $allCategories[$categoryLink]['category'];
-                $products[$category][] = [
+                $products[$categoryLink][] = [
                     'name' => $productName,
                     'link' => $productsLinkToInsert
-                ];
-                // if($limit-- < 0) break;
+                ];;
             }
-
-            // Update products with saving all previous values
-            $this->cacheSet('products', $products);
-            $this->cacheUpdate();
-            $this->currentJob->addLog("end of uploading $curPage page", 'info');
+            $this->currentJob->addLogs("end of uploading $curPage page", 'info');
         }
+        // Update products with saving all previous values
+        $this->currentJob->addContent($products);
     }
 
-    public function run()
-    {
-        $this->currentJob->addLog("START PROCESSING CATEGORY");
+    public function run() {
+        $this->currentJob->addLogs(
+            "START PROCESSING CATEGORY "
+                . $this->currentJob->getExternalData()['Category']
+            );
+        
         $this->parse();
     }
 }

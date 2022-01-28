@@ -7,7 +7,3 @@ function d(...$values) : void {
         echo '</pre>';
     }
 }
-
-function dd(...$values) {
-    d($values);
-}

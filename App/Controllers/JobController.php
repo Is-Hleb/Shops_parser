@@ -5,18 +5,30 @@ namespace App\Controllers;
 use App\Models\Job;
 use App\Models\JobTemplate;
 use App\TasksQueue\JobRunner;
-use App\TasksQueue\TasksQueue;
 
 class JobController extends Controller
 {
+
     public function all() {
-        $jobs = $this->entityManager->getRepository(Job::class)->findAll();
-        $outputSettings = [];
+        global $entityManager;
+        $jobs = $entityManager->getRepository(Job::class)->findAll();
+        $output = [];
+
         foreach ($jobs as $job) {
-            $outputSettings[] = $job->getToRead();
+            $output[] = $job->getToRead();
         }
-        $data['jobs'] = $outputSettings;
-        $this->success($data);
+
+        $this->success([
+            'jobs' => $output
+        ]);
+    }
+
+    public function getContent() {
+
+    }
+
+    public function getLog() {
+
     }
 
     public function create() {

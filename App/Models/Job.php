@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Models;
 
 use Doctrine\ORM\Mapping as ORM;
@@ -7,7 +8,8 @@ use Doctrine\ORM\Mapping as ORM;
  * @ORM\Entity
  * @ORM\Table(name="jobs", options={"collate"="utf8_general_ci"})
  */
-class Job {
+class Job
+{
 
     /**
      * @ORM\Id
@@ -91,7 +93,7 @@ class Job {
     }
 
     public function addLogs(array|string $logs, $type = 'error') {
-        if(is_array($logs)) {
+        if (is_array($logs)) {
             foreach ($logs as $log) {
                 $log = new Log($this, $log, $type);
                 $this->logs[] = $log;
@@ -105,7 +107,7 @@ class Job {
         $entityManager->flush($this);
     }
 
-    public function getContents() : array{
+    public function getContents(): array {
         $output = [];
         foreach ($this->contents as $content) {
             $output[] = $content->getContent();
@@ -113,14 +115,14 @@ class Job {
         return $output;
     }
 
-    public function setExternalData($externalData) : void {
+    public function setExternalData($externalData): void {
         $this->externalData = json_encode($externalData);
     }
 
-    public function getExternalData() : array {
+    public function getExternalData(): array {
         $json = json_decode($this->externalData, true) ?? [];
 
-        if(empty($json)) {
+        if (empty($json)) {
             return [];
         }
 
@@ -174,15 +176,29 @@ class Job {
         $entityManager->flush($this);
     }
 
-    public function getId() : int {
+    public function getId(): int {
         return $this->id;
     }
 
-    public function getCommand() : string {
+    public function getCommand(): string {
         return $this->command;
     }
 
-    public function getName() : string {
+    public function getName(): string {
         return $this->name;
+    }
+
+    public function getToRead() {
+        return [
+            'id' => $this->id,
+            'name' => $this->name,
+            'status' => match ($this->status) {
+                0 => 'ended',
+                1 => 'running',
+                2 => 'waiting',
+                3 => 'executed_with_error',
+                default => 'executed_with_status: ' . $this->status
+            },
+        ];
     }
 }

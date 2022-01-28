@@ -72,9 +72,10 @@ class SettingsController extends Controller
     }
 
     public function edit() {
+        $settingId = $this->get['setting'];
         $postSetting = $this->post['setting'];
-        $setting = $this->entityManager->getReference(Setting::class, $postSetting['id']);
 
+        $setting = $this->entityManager->getReference(Setting::class, $settingId);
         $setting->setName($postSetting['name']);
         $setting->setValue($postSetting['value']);
         $setting->setCollection($postSetting['collection']);

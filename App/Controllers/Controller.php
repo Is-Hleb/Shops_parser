@@ -21,7 +21,20 @@ abstract class Controller
         global $entityManager;
         $this->entityManager = $entityManager;
         $this->post = json_decode($json, true) ?? [];
+
         $this->get = $_GET;
+        $parsed = parse_url($_SERVER['REQUEST_URI']);
+        if(is_array($parsed) && !empty($parsed['query'])) {
+            $data = $parsed['query'];
+            $values = explode('&', $data);
+            $output = [];
+            foreach ($values as $value) {
+                $datum = explode('=', $value);
+                $output[$datum[0]] = $datum[1] ?? null;
+            }
+            $this->get = $output;
+        }
+
     }
 
     #[NoReturn] public function success($data = []) {

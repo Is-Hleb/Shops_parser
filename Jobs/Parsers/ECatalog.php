@@ -16,7 +16,10 @@ class ECatalog extends ShopsParserController
         $this->currentJob->addLogs($category, 'info');
 
 
-        $this->dom->loadFromUrl($category);
+        while(!$this->dom->loadFromUrl($category)) {
+            $this->currentJob->addLogs("Пытаюсь получить категорию...", 'info');
+            sleep(5);
+        }
         // Название категории
         $title = $this->dom->find('.page-title')[0]->find('div')->text;
         // Ссылка на все товары категории
@@ -100,7 +103,7 @@ class ECatalog extends ShopsParserController
         $this->currentJob->addLogs(
             "START PROCESSING CATEGORY "
                 . $this->currentJob->getExternalData()['Category']
-            );
+            , 'info');
         
         $this->parse();
     }

@@ -2,7 +2,7 @@
   <MDBAccordion flush>
     <MDBAccordionItem
         v-for="job in jobs" :key="job.id"
-        :headerTitle="job.name"
+        :headerTitle="`${job.name} (${job.status})`"
         :collapseId="job.id"
     >
       <Log :id="job.id" />
@@ -33,11 +33,21 @@ export default {
       jobs: []
     }
   },
+  methods: {
+    loadJobs() {
+      axios.get('/api/jobs').then(r => {
+        r = r.data;
+        this.jobs = r.data.jobs;
+      });
+    }
+  },
   beforeMount() {
-    axios.get('/api/jobs').then(r => {
-      r = r.data;
-      this.jobs = r.data.jobs;
-    });
+    this.loadJobs()
+  },
+  mounted() {
+    setInterval(() => {
+      this.loadJobs()
+    }, 1500);
   }
 };
 </script>

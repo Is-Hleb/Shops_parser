@@ -19,7 +19,7 @@
     <MDBListGroupItem v-for="setting in settingsToShow" :key="setting.key">
       <MDBRow>
         <MDBCol class="d-flex" col="3">
-          <p v-if="!setting.onEdit" class="align-self-center">{{ setting.name }}</p>
+          <p @click="editSetting(setting.id)" v-if="!setting.onEdit" class="align-self-center">{{ setting.name }}</p>
           <MDBInput
               v-else
               title="Название"
@@ -29,7 +29,7 @@
           />
         </MDBCol>
         <MDBCol class="d-flex" col="3">
-          <p v-if="!setting.onEdit" class="align-self-center">{{ setting.value }}</p>
+          <p @click="editSetting(setting.id)" v-if="!setting.onEdit" class="align-self-center">{{ setting.value }}</p>
           <MDBInput
               v-else
               class="d-block h-50 align-self-center"
@@ -40,7 +40,7 @@
           />
         </MDBCol>
         <MDBCol class="d-flex" col="3">
-          <p v-if="!setting.onEdit" class="align-self-center">{{ setting.collection }}</p>
+          <p @click="editSetting(setting.id)" v-if="!setting.onEdit" class="align-self-center">{{ setting.collection }}</p>
           <MDBInput
               v-else
               class="d-block h-50 align-self-center"
@@ -156,7 +156,7 @@ export default {
       let setting = this.settingsToShow.filter(item => item.id === id)[0];
       setting.onEdit = !setting.onEdit;
       if (!setting.onEdit) { // Edit is ended
-        axios.post('/api/setting/edit', {setting: setting}).then(r => {
+        axios.put(`/api/setting/edit?setting=${setting.id}`, {setting: setting}).then(r => {
           r = r.data;
           console.log(r);
         })

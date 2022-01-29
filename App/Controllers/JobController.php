@@ -23,11 +23,8 @@ class JobController extends Controller
         ]);
     }
 
-    public function getContent() {
-
-    }
-
-    public function getLog() {
+    public function info() {
+        $jobId = $this->get['job'];
 
     }
 

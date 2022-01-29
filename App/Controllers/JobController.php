@@ -25,7 +25,7 @@ class JobController extends Controller
 
     public function info() {
         $jobId = $this->get['job'];
-
+        $this->success($jobId);
     }
 
     public function create() {

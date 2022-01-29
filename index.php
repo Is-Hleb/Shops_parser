@@ -24,7 +24,7 @@ const routes = [
         // Jobs Urls
         'job/templates' => [\App\Controllers\JobTemplateController::class, 'all'],
         'jobs' => [\App\Controllers\JobController::class, 'all'],
-        'jobs/info' => [\App\Controllers\JobController::class, 'info']
+        'job/info' => [\App\Controllers\JobController::class, 'info']
     ],
     "PUT" => [
         'setting/edit' => [\App\Controllers\SettingsController::class, 'edit'],

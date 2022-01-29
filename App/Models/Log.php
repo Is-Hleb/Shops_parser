@@ -31,7 +31,7 @@ class Log
     /**
      * Many features have one product. This is the owning side.
      * @ORM\ManyToOne(targetEntity="Job", inversedBy="logs")
-     * @ORM\JoinColumn(name="job_id", referencedColumnName="id")
+     * @ORM\JoinColumn(name="job_id", referencedColumnName="id", onDelete="CASCADE")
      */
     private $job;
 

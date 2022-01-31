@@ -114,6 +114,24 @@ class Job
         $entityManager->flush($this);
     }
 
+    public function getLogs()
+    {
+//        return $this->logs;
+        $output = [];
+        foreach ($this->logs as $log) {
+            $output[] = $log->returnToRead();
+        }
+        return $output;
+    }
+
+    public function getContentsToRead(): array {
+        $output = [];
+        foreach ($this->contents as $content) {
+            $output[] = $content->getToRead();
+        }
+        return $output;
+    }
+
     public function getContents(): array {
         $output = [];
         foreach ($this->contents as $content) {

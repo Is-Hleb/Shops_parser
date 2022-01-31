@@ -36,6 +36,10 @@ const routes = [
         // Jobs Urls
         'job/template' => [\App\Controllers\JobTemplateController::class, 'create'],
         'job' => [\App\Controllers\JobController::class, 'create'],
+        'jobs/delete' => [\App\Controllers\JobController::class, 'deleteJobs']
+    ],
+    "DELETE" => [
+        'job/delete' => [\App\Controllers\JobController::class, 'delete']
     ]
 ];
 

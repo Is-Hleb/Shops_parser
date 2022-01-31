@@ -51,6 +51,9 @@ if(!$class || !$method) {
 
 if (!is_dir('logs')) {
     mkdir('logs');
+    if(!is_dir('logs/jobs')) {
+        mkdir('logs/jobs');
+    }
 }
 
 (new $class)->$method(...$args);

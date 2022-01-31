@@ -108,13 +108,3 @@ class ECatalog extends ShopsParserController
         $this->parse();
     }
 }
-
-
-
-
-
-
-//https://www.e-katalog.ru/list/239/
-//all-link
-//Gorenje GI 5322 WF-B
-//https://www.e-katalog.ru/ek-item.php?resolved_name_=GORENJE-GI-5322-WF-B&view_=tbl

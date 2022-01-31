@@ -4,6 +4,7 @@ namespace App\Controllers;
 
 use App\Models\Job;
 use App\Models\JobTemplate;
+use App\Models\Log;
 use App\TasksQueue\JobRunner;
 
 class JobController extends Controller
@@ -25,7 +26,6 @@ class JobController extends Controller
 
     public function info() {
         $jobId = $this->get['job'];
-        $this->success($jobId);
     }
 
     public function create() {

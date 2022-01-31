@@ -1,0 +1,17 @@
+{
+  "started": {
+    "date": "2022-01-29 19:36:46.201860",
+    "timezone_type": 3,
+    "timezone": "UTC"
+  },
+  "lastUpdated": {
+    "date": "2022-01-31 08:54:46.405531",
+    "timezone_type": 3,
+    "timezone": "UTC"
+  },
+  "lastJobExecutingAttempt": {
+    "date": "2022-01-31 08:54:46.319208",
+    "timezone_type": 3,
+    "timezone": "UTC"
+  }
+}

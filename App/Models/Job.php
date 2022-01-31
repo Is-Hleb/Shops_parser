@@ -2,7 +2,9 @@
 
 namespace App\Models;
 
+use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\Mapping as ORM;
+use JetBrains\PhpStorm\Pure;
 
 /**
  * @ORM\Entity
@@ -59,21 +61,26 @@ class Job
     protected \DateTime $addedAt;
 
     /**
-     * @ORM\OneToMany(targetEntity="Log", mappedBy="logs")
+     * @ORM\OneToMany(targetEntity="Log", mappedBy="job")
      */
-    private mixed $logs;
+    private $logs;
 
     /**
      * One job has many content. This is the inverse side.
      * @ORM\OneToMany(targetEntity="JobContent", mappedBy="job")
      */
-    private mixed $contents;
+    private $contents;
 
     /**
      * @ORM\ManyToOne(targetEntity="JobTemplate", inversedBy="jobTemplate")
      * @ORM\JoinColumn(name="job_template_id", referencedColumnName="id")
      */
     private JobTemplate $jobTemplate;
+
+    #[Pure] public function __construct() {
+        $this->logs = new ArrayCollection();
+        $this->contents = new ArrayCollection();
+    }
 
     public function setTemplate(JobTemplate $jobTemplate) {
         $jobTemplate->addJob($this);
@@ -167,6 +174,17 @@ class Job
         $entityManager->flush($this);
     }
 
+    public function tryToRepeat() { // TODO удалять все логи и контент (logs, contents)
+        $this->active = false;
+        $this->status = 2;
+        $this->started = new \DateTime();
+        $this->finished = new \DateTime();
+        $this->addedAt = new \DateTime('NOW');
+
+        global $entityManager;
+        $entityManager->flush($this);
+    }
+
     public function setDisabled($status = 0) {
         $this->active = false;
         $this->status = $status;
@@ -188,10 +206,15 @@ class Job
         return $this->name;
     }
 
+    public function getLogs() {
+        return $this->logs;
+    }
+
     public function getToRead() {
         return [
             'id' => $this->id,
             'name' => $this->name,
+            'statusCode' => $this->status,
             'status' => match ($this->status) {
                 0 => 'ended',
                 1 => 'running',

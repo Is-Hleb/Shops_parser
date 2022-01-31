@@ -1,5 +1,6 @@
 <template>
-  <form>
+  <Preloader v-if="loading"/>
+  <form v-else>
     <MDBContainer>
       <MDBRow class="w-100">
         <MDBCol col="8" class="">
@@ -147,6 +148,7 @@ import {
   // MDBCheckbox,
   MDBBtn,
 } from "mdb-vue-ui-kit";
+import Preloader from "@/components/Preloader";
 
 const axios = require('axios');
 
@@ -159,10 +161,12 @@ export default {
     MDBContainer,
     MDBListGroup,
     MDBListGroupItem,
-    MDBBtn
+    MDBBtn,
+    Preloader
   },
   data() {
     return {
+      loading: true,
       job: {
         name: "",
         externalData: [],
@@ -198,6 +202,7 @@ export default {
 
         this.jobTemplates = output;
         this.job.jobTemplate = output[0];
+        this.loadExternalData();
       });
     },
     loadExternalData() {
@@ -211,6 +216,8 @@ export default {
         this.collections = collections;
         this.settings = settings;
         this.changeActiveCollection(collections[0]);
+
+        if(this.loading) this.loading = false;
       })
     },
 
@@ -229,7 +236,6 @@ export default {
   },
   async beforeMount() {
     this.loadTemplates();
-    this.loadExternalData();
   }
 };
 </script>

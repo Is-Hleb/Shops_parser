@@ -59,7 +59,7 @@ abstract class Controller
     #[NoReturn] public function downloadJson(string $json, string $fileName = null) : void{
 
         if(!$fileName) {
-            $file_name = date('Y-m-d h:m') . ".json";
+            $fileName = date('Y-m-d h:m') . ".json";
         }
 
         header("Content-Disposition: attachment; filename=\"$fileName\"");

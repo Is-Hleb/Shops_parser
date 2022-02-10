@@ -25,7 +25,7 @@ const routes = [
         'job/templates' => [\App\Controllers\JobTemplateController::class, 'all'],
         'jobs' => [\App\Controllers\JobController::class, 'all'],
         'job/info' => [\App\Controllers\JobController::class, 'info'],
-
+        'job/restart' => [\App\Controllers\JobController::class, 'restart'],
 
         // JSON CONTENT
         'download/json/content' => [\App\Controllers\ContentController::class, 'downloadAsJson']

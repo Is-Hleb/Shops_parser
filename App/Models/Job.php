@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\TasksQueue\JobRunner;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\Mapping as ORM;
 use JetBrains\PhpStorm\Pure;
@@ -153,7 +154,7 @@ class Job
 
         $output = [];
         foreach ($json as $item) {
-            $output[$item['name']] = $item['value'];
+            $output[$item['name'] ?? ""] = $item['value'] ?? "";
         }
         return $output;
     }
@@ -198,8 +199,15 @@ class Job
         $this->started = new \DateTime();
         $this->finished = new \DateTime();
         $this->addedAt = new \DateTime('NOW');
-
         global $entityManager;
+
+        $log = Log::class;
+        $content = JobContent::class;
+        $entityManager->createQuery("delete from $log m where m.job = {$this->id}")->execute();
+        $entityManager->createQuery("delete from $content m where m.job = {$this->id}")->execute();
+
+        JobRunner::tryToStartProcessor();
+
         $entityManager->flush($this);
     }
 

@@ -29,7 +29,24 @@ abstract class JobRunner
         }
     }
 
-    private static function runOne(string $jobName, array $externalData, JobTemplate $jobTemplate) {
+    public static function tryToStartProcessor() : void {
+        global $entityManager;
+
+        $jobs = $entityManager->getRepository(Job::class)->findBy(
+            ['status' => 1]
+        );
+
+        if (empty($jobs)) {
+            $command = 'php processor.php > processor.log&';
+            if (PHP_OS == 'WINNT') {
+                $command = "START /B $command";
+                $command = str_replace('&', '', $command);
+            }
+            exec($command);
+        }
+    }
+
+    public static function runOne(string $jobName, array $externalData, JobTemplate $jobTemplate) {
         global $entityManager;
 
         $jobs = $entityManager->getRepository(Job::class)->findBy(

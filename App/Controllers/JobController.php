@@ -35,7 +35,11 @@ class JobController extends Controller
 
         $logs = $job->getLogs();
         $jobName = $job->getName();
-        $logsFile = file_get_contents('logs/jobs/' . $jobName . '.log', true);
+        if(is_file('logs/jobs/' . $jobName . '.log')) {
+            $logsFile = file_get_contents('logs/jobs/' . $jobName . '.log', true);
+        } else {
+            $logsFile = "";
+        }
         $contents = $job->getContentsToRead();
         $output['logs'] = $logs;
         $output['log_file'] = $logsFile;
@@ -60,6 +64,12 @@ class JobController extends Controller
             $this->entityManager->flush();
         }
         $this->success();
+    }
+
+    public function restart() {
+        $id = $this->get['job'];
+        $job = Job::find($id);
+        $job->tryToRepeat();
     }
 
     public function create() {

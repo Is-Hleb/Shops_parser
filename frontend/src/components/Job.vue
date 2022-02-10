@@ -34,7 +34,8 @@
         <div v-if="job.contents.length > 0">
           <h4>Результат работы</h4>
           <MDBListGroup flush>
-            <MDBListGroupItem v-for="content in job.contents" :key="content.id" class="border-bottom d-flex pe-0" action>
+            <MDBListGroupItem v-for="content in job.contents" :key="content.id" class="border-bottom d-flex pe-0"
+                              action>
               {{ content.type }}
               <MDBBtn @click="uploadContent(content.id)" class="ms-auto me-0">Скачать</MDBBtn>
             </MDBListGroupItem>
@@ -42,7 +43,7 @@
         </div>
         <MDBRow class="">
           <MDBCol class="p-0">
-            <MDBBtn class="m-0 w-100 btn-primary border-0 rounded-0 align-self-end">Запустить</MDBBtn>
+            <MDBBtn @click="restart" class="m-0 w-100 btn-primary border-0 rounded-0 align-self-end">Запустить</MDBBtn>
           </MDBCol>
         </MDBRow>
       </MDBCol>
@@ -116,6 +117,14 @@ export default {
     uploadContent(id) {
       window.location = `api/download/json/content?content=${id}&job=${this.id}`;
     },
+    restart() {
+      axios.get(`/api/job/restart?job=${this.id}`).then(() => {
+        this.job.status = 2;
+        this.job.logs = [];
+        this.job.log_file = "";
+
+      })
+    }
   },
   mounted() {
     this.loadJob();

@@ -40,7 +40,7 @@
           </MDBBtn>
 
           <div class="ms-2 d-inline">
-            <MDBBtn class="btn btn-danger m-0">
+            <MDBBtn @click="deleteJob(job.id)" class="btn btn-danger m-0">
               Удалить
             </MDBBtn>
           </div>
@@ -54,6 +54,7 @@
             class="border"
         >
           <Job
+              v-if="job.id === activeJob"
               :id="job.id"
           />
         </MDBCollapse>
@@ -146,6 +147,11 @@ export default {
         if (this.active) setTimeout(this.loadJobs, 1500);
       });
 
+    },
+    deleteJob(id) {
+      axios.delete(`/api/job?job=${id}`).then(() => {
+        alert('Удалил');
+      });
     },
     nextPage(btn) {
       this.startIndex = (btn - 1) * JOBS_ON_PAGE_COUNT;

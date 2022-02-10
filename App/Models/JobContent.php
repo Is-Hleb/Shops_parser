@@ -54,6 +54,13 @@ class JobContent
         return $this->content;
     }
 
+    public function getJson() : array|string {
+        if(is_array($this->content)) {
+            return json_decode($this->content);
+        }
+        return $this->content;
+    }
+
     public function getToRead() {
         return [
             'id' => $this->id,

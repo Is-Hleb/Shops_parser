@@ -6,6 +6,7 @@ use App\Models\Job;
 use App\Models\JobTemplate;
 use App\Models\Log;
 use App\TasksQueue\JobRunner;
+use function global\d;
 
 class JobController extends Controller
 {
@@ -24,8 +25,41 @@ class JobController extends Controller
         ]);
     }
 
+    /**
+     * @throws \Doctrine\ORM\ORMException
+     */
     public function info() {
+        $output = [];
         $jobId = $this->get['job'];
+        $job = Job::find($jobId);
+
+        $logs = $job->getLogs();
+        $jobName = $job->getName();
+        $logsFile = file_get_contents('logs/jobs/' . $jobName . '.log', true);
+        $contents = $job->getContentsToRead();
+        $output['logs'] = $logs;
+        $output['log_file'] = $logsFile;
+        $output['contents'] = $contents;
+        $output['externalData'] = $job->getExternalData();
+        $this->success($output);
+    }
+
+    public function delete() {
+        $id = $this->get['job'];
+        $job = $this->entityManager->getRepository(Job::class)->find($id);
+        $this->entityManager->remove($job);
+        $this->entityManager->flush();
+        $this->success($job);
+    }
+
+    public function deleteJobs() {
+        $id = $this->post['id'];
+        foreach ($id as $value) {
+            $job = $this->entityManager->getRepository(Job::class)->find($value);
+            $this->entityManager->remove($job);
+            $this->entityManager->flush();
+        }
+        $this->success();
     }
 
     public function create() {

@@ -114,6 +114,24 @@ class Job
         $entityManager->flush($this);
     }
 
+    public function getLogs()
+    {
+//        return $this->logs;
+        $output = [];
+        foreach ($this->logs as $log) {
+            $output[] = $log->returnToRead();
+        }
+        return $output;
+    }
+
+    public function getContentsToRead(): array {
+        $output = [];
+        foreach ($this->contents as $content) {
+            $output[] = $content->getToRead();
+        }
+        return $output;
+    }
+
     public function getContents(): array {
         $output = [];
         foreach ($this->contents as $content) {
@@ -206,15 +224,13 @@ class Job
         return $this->name;
     }
 
-    public function getLogs() {
-        return $this->logs;
-    }
 
     public function getToRead() {
         return [
             'id' => $this->id,
             'name' => $this->name,
             'statusCode' => $this->status,
+            'externalData' => $this->getExternalData(),
             'status' => match ($this->status) {
                 0 => 'ended',
                 1 => 'running',

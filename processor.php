@@ -41,21 +41,11 @@ while (true) {
     $activeJob = $entityManager->getRepository(\App\Models\Job::class)->findBy(
         ['status' => 1]
     );
-
-    $must_run_next = true;
-    if (!empty($activeJob)) {
-        $must_run_next = false;
-    }
-
-    if ($must_run_next) {
-        $job = $jobs[0];
+    if(!empty($activeJob)) {
+        $job = $activeJob[0];
 
         $output = null;
         $result = null;
-
-        $job->setActive();
-
-        $prLog['lastJobExecutingAttempt'] = new DateTime('NOW');
         exec($job->getCommand(), $output, $result);
 
         if (is_array($output)) {
@@ -65,9 +55,28 @@ while (true) {
         file_put_contents('logs/jobs/' . $job->getName() . '.log', $output . "\nResult={$result}");
 
         $job->setDisabled($result);
-    }
+    } else {
+        $job = $jobs[0];
 
-    $prLog['lastUpdated'] = new DateTime('NOW');
-    file_put_contents(__DIR__ . '/processor.json', json_encode($prLog));
+        $job->setActive();
+
+        $prLog['lastJobExecutingAttempt'] = new DateTime('NOW');
+
+        $output = null;
+        $result = null;
+        exec($job->getCommand(), $output, $result);
+
+        if (is_array($output)) {
+            $output = implode("\n", $output);
+        }
+
+        file_put_contents('logs/jobs/' . $job->getName() . '.log', $output . "\nResult={$result}");
+
+        $job->setDisabled($result);
+
+
+        $prLog['lastUpdated'] = new DateTime('NOW');
+        file_put_contents(__DIR__ . '/processor.json', json_encode($prLog));
+    }
     sleep(3);
 }

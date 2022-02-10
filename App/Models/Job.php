@@ -74,7 +74,7 @@ class Job
 
     /**
      * @ORM\ManyToOne(targetEntity="JobTemplate", inversedBy="jobTemplate")
-     * @ORM\JoinColumn(name="job_template_id", referencedColumnName="id")
+     * @ORM\JoinColumn(name="job_template_id", referencedColumnName="id", onDelete="CASCADE")
      */
     private JobTemplate $jobTemplate;
 

@@ -16,6 +16,8 @@ spl_autoload_register(function ($class) {
     require_once str_replace('\\', '/', $class) . '.php';
 });
 
+\App\TasksQueue\JobRunner::tryToStartProcessor();
+
 const routes = [
     "GET" => [
         'settings' => [\App\Controllers\SettingsController::class, 'all'],

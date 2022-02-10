@@ -53,7 +53,7 @@ class JobController extends Controller
         $job = $this->entityManager->getRepository(Job::class)->find($id);
         $this->entityManager->remove($job);
         $this->entityManager->flush();
-        $this->success($job);
+        $this->success();
     }
 
     public function deleteJobs() {

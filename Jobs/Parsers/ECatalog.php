@@ -75,7 +75,7 @@ class ECatalog extends ShopsParserController
             if (count($links) <= 1) {
                 break;
             }
-
+            $limit = $this->currentJob->getExternalData()['limit'] ?? 10000;
             foreach ($links as $link) {
                 $name = $link->getAttribute('href'); // Берём ссылки
                 $name = explode('.', $name);
@@ -88,10 +88,67 @@ class ECatalog extends ShopsParserController
                 // Link to product properties
                 $productsLinkToInsert = "https://www.e-katalog.ru/ek-item.php?resolved_name_={$name}&view_=tbl";
 
+                // load products page
+                $html = file_get_contents($productsLinkToInsert);
+//                $this->currentJob->addContent($html);
+//                $this->currentJob->addContent($productsLinkToInsert);
+                $this->dom->loadFromUrl($productsLinkToInsert);
+                $this->currentJob->addLogs('product link ' . $productsLinkToInsert, 'info');
+
+
+                // Props
+
+                $HTMLProductPropsTrs = $this->dom->find('tr');
+                $output = [];
+                foreach ($HTMLProductPropsTrs as $HTMLProductPropsTr) {
+                    $tds = $HTMLProductPropsTr->find('td');
+                    if(!$tds) continue;
+
+                    $propName = $tds[0];
+                    $val = $tds[1];
+
+                    if(!$propName || !$val) {
+                        continue;
+                    }
+
+                    try {
+                        $gloss = $propName->find('.gloss')[0];
+
+                        if(!$gloss) {
+                            $propName = $propName->find('.cmp-gr-name')[0];
+                            if($propName)
+                                $propName = $propName->text;
+
+                        } else {
+                            $ib = $gloss->find('.ib')[0];
+                            $propName = ($gloss ? $gloss->text : '') . ($ib ? $ib->text : '');
+                        }
+
+                    } catch (\Exception $exception) {
+                        // $this->currentJob->addContent($propName);
+                        // $this->currentJob->addContent($output);
+                        // $this->currentJob->addLogs($exception->getMessage());
+                        $propName = $propName->text;
+
+                    }
+
+                    if(empty(trim($propName))) {
+                        continue;
+                    }
+
+                    $val = $val->text;
+
+                    if(empty(trim($val))) $val = '+';
+                    $output[$propName] = $val;
+                }
+                // $this->currentJob->addContent($output);
+
                 $products[$categoryLink][] = [
                     'name' => $productName,
-                    'link' => $productsLinkToInsert
-                ];;
+                    'link' => $productsLinkToInsert,
+                    'properties' => $output
+                ];
+                if($limit-- < 0) break;
             }
             $this->currentJob->addLogs("end of uploading $curPage page", 'info');
         }

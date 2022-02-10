@@ -62,9 +62,8 @@ abstract class Controller
             $file_name = date('Y-m-d h:m') . ".json";
         }
 
-        header("Content-Disposition: attachment; filename=\"$file_name\"");
+        header("Content-Disposition: attachment; filename=\"$fileName\"");
         header("Content-Type: application/json; charset=utf-8");
-
         echo $json;
         exit();
     }

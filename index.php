@@ -24,7 +24,11 @@ const routes = [
         // Jobs Urls
         'job/templates' => [\App\Controllers\JobTemplateController::class, 'all'],
         'jobs' => [\App\Controllers\JobController::class, 'all'],
-        'job/info' => [\App\Controllers\JobController::class, 'info']
+        'job/info' => [\App\Controllers\JobController::class, 'info'],
+
+
+        // JSON CONTENT
+        'download/json/content' => [\App\Controllers\ContentController::class, 'downloadAsJson']
     ],
     "PUT" => [
         'setting/edit' => [\App\Controllers\SettingsController::class, 'edit'],
@@ -39,7 +43,7 @@ const routes = [
         'jobs/delete' => [\App\Controllers\JobController::class, 'deleteJobs']
     ],
     "DELETE" => [
-        'job/delete' => [\App\Controllers\JobController::class, 'delete']
+        'job' => [\App\Controllers\JobController::class, 'delete']
     ]
 ];
 

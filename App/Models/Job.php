@@ -224,15 +224,13 @@ class Job
         return $this->name;
     }
 
-    public function getLogs() {
-        return $this->logs;
-    }
 
     public function getToRead() {
         return [
             'id' => $this->id,
             'name' => $this->name,
             'statusCode' => $this->status,
+            'externalData' => $this->getExternalData(),
             'status' => match ($this->status) {
                 0 => 'ended',
                 1 => 'running',

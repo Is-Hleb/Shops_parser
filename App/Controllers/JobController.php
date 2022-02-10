@@ -31,18 +31,21 @@ class JobController extends Controller
     public function info() {
         $output = [];
         $jobId = $this->get['job'];
-        $logs = Job::find($jobId)->getLogs();
-        $jobName = Job::find($jobId)->getName();
+        $job = Job::find($jobId);
+
+        $logs = $job->getLogs();
+        $jobName = $job->getName();
         $logsFile = file_get_contents('logs/jobs/' . $jobName . '.log', true);
-        $contents = Job::find($jobId)->getContentsToRead();
-        $output['logs'][] = $logs;
-        $output['logs_file'] = $logsFile;
-        $output['contents'][] = $contents;
+        $contents = $job->getContentsToRead();
+        $output['logs'] = $logs;
+        $output['log_file'] = $logsFile;
+        $output['contents'] = $contents;
+        $output['externalData'] = $job->getExternalData();
         $this->success($output);
     }
 
     public function delete() {
-        $id = $this->get['id'];
+        $id = $this->get['job'];
         $job = $this->entityManager->getRepository(Job::class)->find($id);
         $this->entityManager->remove($job);
         $this->entityManager->flush();

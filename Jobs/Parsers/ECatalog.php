@@ -141,12 +141,45 @@ class ECatalog extends ShopsParserController
                     if(empty(trim($val))) $val = '+';
                     $output[$propName] = $val;
                 }
-                // $this->currentJob->addContent($output);
+
+                // Price
+
+                $HTMLProductPrices = $this->dom->find('.desc-big-price');
+                 $arr = [];
+                foreach ($HTMLProductPrices as $HTMLProductPrice) {
+                    $prices = $HTMLProductPrice->find('span');
+                    if(!$prices) continue;
+
+                    $lowPrice = $prices[0];
+                    $lowPrice = $lowPrice->text;
+                    $highPrice = $prices[1];
+                    $highPrice = $highPrice->text;
+
+                    if(!$lowPrice || !$highPrice) {
+                        continue;
+                    }
+
+                    $lowPrice = explode('&nbsp;', $lowPrice);
+                    $lowPrice = $lowPrice[0] . $lowPrice[1];
+
+                    $highPrice = explode('&nbsp;', $highPrice);
+                    $highPrice = $highPrice[0] . $highPrice[1];
+
+                    $price = (intval($lowPrice) + intval($highPrice)) / 2;
+
+//                    $arr = [
+//                        'lowPrice' => $lowPrice,
+//                        'highPrice' => $highPrice,
+//                        'price' => $price,
+//                    ];
+
+                }
 
                 $products[$categoryLink][] = [
                     'name' => $productName,
                     'link' => $productsLinkToInsert,
-                    'properties' => $output
+                    'properties' => $output,
+                    'price' => $price,
                 ];
                 if($limit-- < 0) break;
             }
